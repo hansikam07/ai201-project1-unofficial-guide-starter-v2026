@@ -24,6 +24,8 @@ your pipeline, not giving up.
 
 from dataclasses import dataclass
 
+import re
+
 import config
 from ingest import Document
 
@@ -82,22 +84,51 @@ def fallback_split(
 
 def split_documents(documents: list[Document]) -> list[Chunk]:
     """
-    Split documents into chunks. ⚠️ REPLACE THE BODY OF THIS IN MILESTONE 3.
+    Split each thread into one chunk per reply.
 
-    Right now it just calls the fallback. That is the plain, generic behaviour
-    the brief is talking about.
+    advice_threads documents are Q&A threads: a title line, followed by
+    replies marked "--- reply N (X votes) ---". Each reply is already a
+    complete, self-contained thought (confirmed by reading several threads
+    in Milestone 1), so the natural chunk boundary is the reply, not a fixed
+    character count.
 
-    When you write your own strategy, set `produced_by` to
-    "chunker.py::split_documents" so your README's Sample Chunks section names
-    the right function. `app.py chunks` prints that string for you.
-
-    Things worth thinking about before you write any code:
-      - Are your documents short posts or long guides?
-      - Is the useful information in one sentence, or spread over a paragraph?
-      - Would splitting on paragraph breaks keep more thoughts intact than
-        splitting on a character count?
+    The thread title is prepended to each reply so a chunk still makes sense
+    on its own without needing the surrounding replies for context.
     """
-    return fallback_split(documents)
+    reply_pattern = re.compile(
+        r"---\s*reply\s*\d+\s*\(\d+\s*votes?\)\s*---", re.IGNORECASE
+    )
+
+    chunks: list[Chunk] = []
+    for doc in documents:
+        text = doc.text.strip()
+
+        title_match = re.match(r"^(THREAD:.*)", text)
+        title = title_match.group(1).strip() if title_match else ""
+
+        pieces = reply_pattern.split(text)
+        pieces = [p.strip() for p in pieces if p.strip()]
+
+        if title and pieces and pieces[0].startswith("THREAD:"):
+            pieces = pieces[1:]
+
+        index = 0
+        for piece in pieces:
+            piece = piece.strip()
+            if not piece:
+                continue
+            combined = f"{title}\n{piece}" if title else piece
+            chunks.append(
+                Chunk(
+                    text=combined,
+                    source=doc.source,
+                    index=index,
+                    produced_by="chunker.py::split_documents",
+                )
+            )
+            index += 1
+
+    return chunks
 
 
 def describe(chunks: list[Chunk]) -> str:

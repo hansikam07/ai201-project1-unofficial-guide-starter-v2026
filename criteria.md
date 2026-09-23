@@ -25,7 +25,7 @@ contains the answer.
 **Why this target:**
 <!-- e.g. "One of my questions is about a topic only two documents mention, so
      I expect that one to be hard." -->
-
+The question about the roomate troubles has three replies so it might not have a single retrieved chunk. 
 ---
 
 ## 2. Every answer names a source
@@ -36,6 +36,7 @@ Every answer the system produces names at least one source document.
 <!-- Why all five and not four? What about your setup makes that achievable —
      or what would have to go wrong for it not to be? -->
 
+This is to make sure that each answer is actually from teh sources so we need all five and thsi will test is the model works or not.
 ---
 
 ## 3. The relevance gate stops out-of-corpus questions
@@ -72,6 +73,7 @@ in at least 4 of 5 tries.
 
 
 **Why this target:**
+
 
 
 

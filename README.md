@@ -30,7 +30,9 @@
 ## Chunking Strategy
 
 **Chunk size:**
+variable (one reply per chunk, ~100–250 chars)
 **Overlap:**
+none — replies don't overlap by design
 
 <!-- What about YOUR documents made you pick these numbers? Short posts and
      long sectioned guides don't want the same chunking, and "800 seemed
@@ -41,6 +43,8 @@
      more than pretending you got it right first time.
 
      Milestone 3. -->
+
+> I split each thread on the `--- reply N (votes) ---` markers so every chunk is exactly one reply, with the thread title stuck on top for context. In Milestone 1 I saw the fallback chunker produce a 2-char chunk and a 793-char chunk from the same corpus — proof it was cutting by character count instead of by reply. Since every reply here already reads as a full, standalone answer, splitting on reply boundaries just made more sense than picking a chunk size.
 
 ## Sample Chunks
 
@@ -53,27 +57,30 @@
 
      Milestone 3. -->
 
-**Chunk 1** — source: `` — produced by: ``
+**Chunk 1** — source: `thread_bike_commute.txt#0` — produced by: `chunker.py::split_documents`
 
 ```
 ```
 
-**Chunk 2** — source: `` — produced by: ``
+
+**Chunk 2** — source: `thread_first_gen.txt#1` — produced by: `chunker.py::split_documents`
 
 ```
 ```
 
-**Chunk 3** — source: `` — produced by: ``
+**Chunk 3** — source: `thread_laptop_specs.txt#2` — produced by: `chunker.py::split_documents`
 
 ```
 ```
 
-**Chunk 4** — source: `` — produced by: ``
+
+**Chunk 4** — source: `thread_parking.txt#1` — produced by: `chunker.py::split_documents`
 
 ```
 ```
 
-**Chunk 5** — source: `` — produced by: ``
+
+**Chunk 5** — source: `thread_sleep_schedule.txt#1` — produced by: `chunker.py::split_documents`
 
 ```
 ```
