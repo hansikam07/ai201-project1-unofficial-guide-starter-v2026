@@ -27,6 +27,8 @@
 
      Milestone 5. -->
 
+I picked the advice threads corpus about student life such as laundry, parking, roomates, office hours, and pass/fail. The model retrieves the relevent reply chunks based on the question. It gets the replies only from the sources and also names the used sources. If the question doesn't have any relevent information in the sources it doesn't answer instead. 
+
 ## Chunking Strategy
 
 **Chunk size:**
@@ -139,8 +141,10 @@ When I ran my questions the best distances were between 0.15-0.28 and the out of
      Milestone 5. -->
 
 **1.**
+A moment I used AI is for the chunker which I then split bny reply markers rather than the char count. Th AI came back with a working regex-based splitter. I ran python app.py --corpus advice_threads index and then did  chunks -n 5 to check for my self and using that I confirmed for myself. 
 
 **2.**
+I used AI to help set the relevence cut off after running eveyrthing my self I put in the results into AI to do the math on the numbers for the ranges and the overlaps. Then I checked the suggested cut off and decided it was appropriate and implemented it. 
 
 <!-- ── Stretch features ─────────────────────────────────────────────────────
      Doing one? Say so here BEFORE you start. A feature this README never

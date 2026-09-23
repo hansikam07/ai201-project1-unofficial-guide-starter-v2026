@@ -83,7 +83,7 @@ The fallback chunker makes 2char and 793 char chunk with teh same corpus so ther
 
 ## 5. Your choice
 
-My 5 in-corpus's best distance is lower that 0.15 on average than the out-of-scope 5 questions's best. 
+My 5 in-corpus's best distance is at least that 0.15 lower on average than the out-of-scope 5 questions's best. 
 
 <!-- YOU WRITE THIS ONE TOO.
 
