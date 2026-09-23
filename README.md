@@ -44,7 +44,7 @@ none — replies don't overlap by design
 
      Milestone 3. -->
 
-> I split each thread on the `--- reply N (votes) ---` markers so every chunk is exactly one reply, with the thread title stuck on top for context. In Milestone 1 I saw the fallback chunker produce a 2-char chunk and a 793-char chunk from the same corpus — proof it was cutting by character count instead of by reply. Since every reply here already reads as a full, standalone answer, splitting on reply boundaries just made more sense than picking a chunk size.
+Since the original chunker was juts fixed to 800chars, it didn't properly reply. Based on milestone 1 I saw the the replies were already complete and variable so spliting them by char wasn't effective. instead I changed the chunkingt to be based of the --- reply N (votes) --- marking instead and it resulted in proper chunks that were decently sized. 
 
 ## Sample Chunks
 
@@ -60,29 +60,39 @@ none — replies don't overlap by design
 **Chunk 1** — source: `thread_bike_commute.txt#0` — produced by: `chunker.py::split_documents`
 
 ```
+THREAD: Is a bike worth it for a 20 minute walk commute?
+Yeah. Cuts an 18 minute walk to about 6. The thing nobody mentions is storage — covered bike parking exists at three buildings and is full by 9am at all three.
 ```
 
 
 **Chunk 2** — source: `thread_first_gen.txt#1` — produced by: `chunker.py::split_documents`
 
 ```
+THREAD: Anything specific for first-generation students?
+The thing I'd say: the unwritten rules are the hard part, not the coursework. Ask about the unwritten rules explicitly. People are happy to explain them and nobody volunteers them.
 ```
 
 **Chunk 3** — source: `thread_laptop_specs.txt#2` — produced by: `chunker.py::split_documents`
 
 ```
+THREAD: How much laptop do I actually need for CS courses?
+I did two years on an 8GB machine and it was fine until the last project, at which point it very much wasn't. 16 is the answer.
 ```
 
 
 **Chunk 4** — source: `thread_parking.txt#1` — produced by: `chunker.py::split_documents`
 
 ```
+THREAD: Worth getting a parking permit?
+Street parking on Verrill is legal and free and unmarked, which is why half the upper years do it.
 ```
 
 
 **Chunk 5** — source: `thread_sleep_schedule.txt#1` — produced by: `chunker.py::split_documents`
 
 ```
+THREAD: Everyone says fix your sleep. Does it actually matter?
+The library being open until 2am is a trap. It's a resource, not a schedule.
 ```
 
 ## Sample Answer
@@ -102,7 +112,7 @@ Sources retrieved: thread_commuting.txt, thread_laundry_timing.txt, thread_roomm
 
 **My relevance cutoff:** 0.5
 
-I ran my 5 in-corpus questions and the 5 OUT_OF_SCOPE questions and looked at the best distance for each. In-corpus questions landed between 0.15 and 0.28; out-of-scope questions landed between 0.82 and 0.91 — a huge gap with no overlap. I set the cutoff at 0.5, comfortably in the middle.
+When I ran my questions the best distances were between 0.15-0.28 and the out of scope ones were between 0.82-0.91 since there is alrge gap with no overlap I chose 0.5 since it was between the high end of the best and low end of the out of scope.
 
 | Question | In corpus? | Best distance |
 |---|---|---|

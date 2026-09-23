@@ -54,6 +54,8 @@ in at least 4 of 5 tries.
 <!-- What did your distances look like when you set the cutoff in Milestone 4?
      Was there a clean gap, or did the two groups overlap? -->
 
+Yes there was a clean gap. The in-corpus 0.15-0.28 and teh out-of-scope is 0.82-0.91 there is a lrgae gap with no overlap so I made the cutoff 0.5 right in the middle of both. 
+
 ---
 
 ## 4. Something about your chunks
@@ -74,12 +76,14 @@ in at least 4 of 5 tries.
 
 **Why this target:**
 
-
+The fallback chunker makes 2char and 793 char chunk with teh same corpus so there isn't control. Instead since every reply is self-contained per reply splitting will keep the chunks collected thoughts. 
 
 
 ---
 
 ## 5. Your choice
+
+My 5 in-corpus's best distance is lower that 0.15 on average than the out-of-scope 5 questions's best. 
 
 <!-- YOU WRITE THIS ONE TOO.
 
@@ -92,6 +96,8 @@ in at least 4 of 5 tries.
 
 
 **Why this target:**
+
+This will help in refusing to answer what it doesn't know since you can't check that by numbers,  0.15 I feel works best so that it won't have a false pass. Since the in corpus average is 0.277 and the out of scope is 0.876, witha large gap of 0.65 is bigger than my 0.15 target. 
 
 
 
