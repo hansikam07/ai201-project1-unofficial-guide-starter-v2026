@@ -211,11 +211,11 @@ Source: `thread_office_hours_etiquette.txt`
 
 | # | Criterion | Verdict | How I decided |
 |---|---|---|---|
-| 1 |  |  |  |
-| 2 |  |  |  |
-| 3 |  |  |  |
-| 4 |  |  |  |
-| 5 |  |  |  |
+| 1 | Retrieved chunk contains the answer | MET | I checked "Sources retrieved" for all 5 questions across all 3 runs, and the correct source file was present every time (5/5, 5/5, 5/5). |
+| 2 | Every answer names a source | MET | I read all 15 generated answers and every one cited a source file, either as "Source:" or inline. |
+| 3 | Gate stops out-of-corpus questions | MET | The gate refused 5 of 5 out-of-scope questions, with distances (0.82–0.91) well clear of my 0.5 cutoff. |
+| 4 | Chunk completeness | MET | I read the 5 sampled chunks and each one was a complete, standalone thought with no sentence cut off. |
+| 5 | Distance separation (≥0.15 gap) | MET | My in-corpus average best distance was ~0.295 and out-of-scope was ~0.876 — a gap of ~0.58, well past my 0.15 target. |
 
 ## Diagnoses
 
