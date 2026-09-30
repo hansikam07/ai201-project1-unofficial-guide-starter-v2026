@@ -278,9 +278,15 @@ If I were rewriting the target, I'd change Criterion 1 to something like: "for a
 
      Milestone 5. -->
 
+
+Criterion 1 technically passes (5/5 retrieval), but the generated wording still doesn't reliably match my `expects` keyword — office hours misses "normal" in 1 of 3 runs. Next I'd try adding stricter prompt rules and maybe multiple acceptable answer phrasings to force more consistency.
+
+
 ## What I'd Do Differently
 
 <!-- Knowing what you know now — which of your five criteria would you write
      differently, and why?
 
      Milestone 5. -->
+
+I'd rewrite Criterion 1 to check that the expected keyword appears in all 3 runs, not just one. I'd also allow multiple acceptable keywords per question, since a source chunk can have more than one valid fact to quote.
