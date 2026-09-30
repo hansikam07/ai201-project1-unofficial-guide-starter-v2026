@@ -171,17 +171,32 @@ I used AI to help set the relevence cut off after running eveyrthing my self I p
 
      Milestone 1. -->
 
+## Run Log — Before
+
 | Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
 |---|---|---|---|---|---|
-| 1. Retrieved chunk contains the answer | 4 of 5 |  |  |  |  |
-| 2. Every answer names a source | 5 of 5 |  |  |  |  |
-| 3. Gate stops out-of-corpus questions | 4 of 5 |  |  |  |  |
-| 4. | | | | | |
-| 5. | | | | | |
+| 1. Retrieved chunk contains the answer | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 2. Every answer names a source | 5 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 3. Gate stops out-of-corpus questions | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 4. Chunk completeness | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 5. Distance separation (≥0.15 gap) | 0.15 gap | 0.58 | 0.58 | 0.58 | MET |
 
 <!-- Underneath, paste the REAL output for each criterion from one of your
      runs — the actual text your system produced, not a description of it.
      Name the file and function that produced it. -->
+
+**Real output** — from `results/run_2026-09-30_0002_before.md`, produced by `run_eval.py::main` (retrieval via `store.py::search`, chunks from `chunker.py::split_documents`):
+
+### Can I go to office hours without questions? — run 2 (MISS on expects: "normal")
+
+- Best distance: 0.3312 (passed the gate)
+- Sources retrieved: thread_office_hours_etiquette.txt, thread_professor_email.txt
+
+```
+Yes, you can go to office hours without a specific question; you are actually doing the instructor a favor by turning up since office hours are usually empty.
+
+Source: `thread_office_hours_etiquette.txt`
+``` 
 
 ## Verdicts
 
