@@ -245,27 +245,21 @@ If I were rewriting the target, I'd change Criterion 1 to something like: "for a
 
 ## The Improvement
 
-**What I changed:**
+**What I changed:** Added one line to `GROUNDING_INSTRUCTION` in `generate.py`, telling the model to reuse exact wording from the source instead of paraphrasing.
 
-**Why I picked it:**
-
-<!-- Connect it to a specific diagnosis above in one sentence. If you can't,
-     you picked a fix because it sounded impressive. -->
+**Why I picked it:** My diagnosis found generation-stage wording drift (office hours, parking), not a retrieval or chunking problem, so a prompt fix was the right target.
 
 ### Run Log — After
 
-<!-- Same format, same five criteria, three runs each.
-     `python run_eval.py --label after` -->
-
 | Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
 |---|---|---|---|---|---|
-| 1. Retrieved chunk contains the answer | 4 of 5 |  |  |  |  |
-| 2. Every answer names a source | 5 of 5 |  |  |  |  |
-| 3. Gate stops out-of-corpus questions | 4 of 5 |  |  |  |  |
-| 4. | | | | | |
-| 5. | | | | | |
+| 1. Retrieved chunk contains the answer | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 2. Every answer names a source | 5 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 3. Gate stops out-of-corpus questions | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 4. Chunk completeness | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 5. Distance separation (≥0.15 gap) | 0.15 gap | 0.58 | 0.58 | 0.58 | MET |
 
-**Did it help?**
+**Did it help?** Partly. Parking went from 3 different phrasings across runs to word-for-word identical quotes in all 3. Laundry also stabilized. But office hours still missed "normal" in 1 of 3 runs — the source chunk has multiple quotable facts, and the model picked a different one each time. So it fixed wording consistency but not the specific miss I was targeting.
 
 <!-- Say plainly whether it did, and how you know. If it made things worse,
      say that — a change that backfired, honestly reported, earns full credit
