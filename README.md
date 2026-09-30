@@ -237,6 +237,12 @@ Source: `thread_office_hours_etiquette.txt`
 
      Milestone 3. -->
 
+Nothing actually missed this round, all five criteria came out MET. But going back through the runs, I think Criterion 1 was too easy to pass.
+
+It only checks if the retrieved chunk has the answer somewhere in it, not whether the actual generated answer says it clearly or the same way every time. I noticed this on two questions. For office hours, run 2 never said "normal" even though it pulled the exact same correct chunk as runs 1 and 3. For parking, the wording about the east lot kept changing between runs (basically free vs similar to free vs just as practical) even though retrieval was identical every time. Same problem both times — the model's wording isn't consistent, and my criteria never check for that since they only look at retrieval.
+
+If I were rewriting the target, I'd change Criterion 1 to something like: "for at least 4 of 5 questions, the generated answer has the expected keyword in all 3 runs, not just one." That would've actually caught the office hours miss (2/3 runs, not 3/3) instead of it slipping through under the retrieval check.
+
 ## The Improvement
 
 **What I changed:**
