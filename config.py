@@ -60,6 +60,10 @@ THRESHOLD = 0.5
 EMBEDDING_MODEL = "all-MiniLM-L6-v2"
 MODEL = os.getenv("AI201_MODEL", "gemini-3.5-flash-lite")
 
+# Sampling temperature sent with every generation call. 0 makes the model pick
+# its most likely wording each time, which is meant to reduce run-to-run drift.
+GENERATION_TEMPERATURE = 0
+
 
 # ─── Rate limiting and quota guards ──────────────────────────────────────────
 # You should not need to touch these. They exist so that a runaway loop costs

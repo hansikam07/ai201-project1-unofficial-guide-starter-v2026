@@ -234,9 +234,10 @@ def generate(prompt: str, system: str | None = None, cache: bool = True) -> str:
             _call_times.append(time.monotonic())
             _session_calls += 1
 
-            kwargs = {"model": config.MODEL, "contents": prompt}
+            gen_config = {"temperature": config.GENERATION_TEMPERATURE}
             if system:
-                kwargs["config"] = {"system_instruction": system}
+                gen_config["system_instruction"] = system
+            kwargs = {"model": config.MODEL, "contents": prompt, "config": gen_config}
 
             response = client.models.generate_content(**kwargs)
             _record_tokens(response)
