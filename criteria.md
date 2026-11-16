@@ -37,6 +37,8 @@ Every answer the system produces names at least one source document.
      or what would have to go wrong for it not to be? -->
 
 This is to make sure that each answer is actually from teh sources so we need all five and thsi will test is the model works or not.
+> **Revised reason (resubmission):** Every answered question must name a file because `generate.py::build_prompt` tags each chunk '[from <filename>]' and `GROUNDING_INSTRUCTION` tells the model to cite it, so five of five is achievable here. Questions the gate refuses never reach the model and name no source by design, so this criterion covers answered questions only. An answer with no source can't be told apart from a hallucination, which is why four of five wouldn't do.
+
 ---
 
 ## 3. The relevance gate stops out-of-corpus questions
