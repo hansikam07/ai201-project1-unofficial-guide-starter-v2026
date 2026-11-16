@@ -79,6 +79,16 @@ Yes there was a clean gap. The in-corpus 0.15-0.28 and teh out-of-scope is 0.82-
 The fallback chunker makes 2char and 793 char chunk with teh same corpus so there isn't control. Instead since every reply is self-contained per reply splitting will keep the chunks collected thoughts. 
 
 
+> **Added in resubmission (Nov 2026):** At least 4 of 5 sampled chunks (from
+> `python app.py chunks -n 5`) read as a complete standalone thought, with no
+> sentence cut off at either end.
+>
+> This was added after I had results. The original Criterion 4 above has a
+> reason but no criterion sentence, because I left that line blank in unit 1.
+> This sentence is the wording I used in my Unit 2 table ("Chunk completeness,
+> 4 of 5"), so it states the target that was actually checked rather than a
+> new one.
+
 ---
 
 ## 5. Your choice
@@ -100,6 +110,18 @@ My 5 in-corpus's best distance is at least that 0.15 lower on average than the o
 This will help in refusing to answer what it doesn't know since you can't check that by numbers,  0.15 I feel works best so that it won't have a false pass. Since the in corpus average is 0.277 and the out of scope is 0.876, witha large gap of 0.65 is bigger than my 0.15 target. 
 
 
+
+> **Correction:** The in-corpus average I wrote in the reason above (0.277)
+> does not match the five best distances in my README table (0.150, 0.244,
+> 0.278, 0.183, 0.282), which average 0.227. The "0.65 gap" I wrote matches
+> 0.227 (0.876 - 0.227 = 0.649), not 0.277, so the gap was right and the
+> average was a typo.
+>
+> The Unit 2 run log (`results/run_2026-09-30_0002_before.md`) uses the exact
+> wording in `questions.py`, which differs from the wording behind the
+> Milestone 4 table, so its best distances are different: 0.1689, 0.4473,
+> 0.3312, 0.3010, 0.2282, average 0.295, giving a gap of 0.58 against the
+> out-of-scope average of 0.876. Both gaps are well past the 0.15 target.
 
 ---
 
