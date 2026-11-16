@@ -474,3 +474,7 @@ Criterion 1 technically passes (5/5 retrieval), but the generated wording still 
      Milestone 5. -->
 
 I'd rewrite Criterion 1 to check that the expected keyword appears in all 3 runs, not just one. I'd also allow multiple acceptable keywords per question, since a source chunk can have more than one valid fact to quote.
+
+## Stretch: a second measured improvement — declared before building
+
+**Added in resubmission (Nov 2026).** This follows my existing diagnosis: run-to-run wording drift at the **generation** stage (the model picks a different quotable fact each run; office hours missed "normal" once in each log). I will make ONE change: send temperature 0 with every model call in `generate.py::generate`, set by a new `GENERATION_TEMPERATURE = 0` in `config.py`. Then I will run `python run_eval.py --label after2` (three runs per question, caching off), score the new log with `python scorer.py`, and report in "Run Log — After (2)" whether it helped and what it cost, including if it did not help. The two earlier logs stay untouched.
