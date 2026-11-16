@@ -151,6 +151,10 @@ I used AI to help set the relevance cutoff after running everything myself I put
      claims earns nothing.
      ───────────────────────────────────────────────────────────────────────── -->
 
+## Stretch: metadata filtering by source — declared before building
+
+**Added in resubmission (Nov 2026).** I am adding an optional `--source NAME` filter to `python app.py ask` and `python app.py retrieve`, so retrieval can be limited to one source file (for example `thread_parking.txt`). It works through the `source` metadata field every chunk already stores. With no flag, behaviour stays exactly as it is now. The corpus has no dates, so this is filtering by source only, not by date.
+
 ---
 
 # Unit 2
