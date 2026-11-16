@@ -183,11 +183,15 @@ def search(
     top_k: int | None = None,
     corpus: str | None = None,
     variant: str = "default",
+    source: str | None = None,
 ) -> list[Result]:
     """
     Retrieve the chunks closest in meaning to a question.
 
     Returns them nearest-first, each with its distance.
+
+    If `source` is given (a filename like "thread_parking.txt"), only chunks
+    from that file are considered. With no `source`, behaviour is unchanged.
     """
     top_k = top_k or config.TOP_K
     name = config.collection_name(corpus, variant)
@@ -199,9 +203,22 @@ def search(
             f"No index called '{name}'. Run `python app.py index` first."
         ) from exc
 
+    query_args = {}
+    if source:
+        # Count the chunks that match first: n_results larger than the number
+        # of matches is an error in Chroma, and zero matches should be a clean
+        # empty result, not a crash.
+        query_args["where"] = {"source": source}
+        available = len(collection.get(where={"source": source}, include=[])["ids"])
+        if available == 0:
+            return []
+    else:
+        available = collection.count()
+
     raw = collection.query(
         query_embeddings=embed([question]),
-        n_results=min(top_k, collection.count()),
+        n_results=min(top_k, available),
+        **query_args,
     )
 
     results: list[Result] = []

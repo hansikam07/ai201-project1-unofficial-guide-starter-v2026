@@ -155,6 +155,61 @@ I used AI to help set the relevance cutoff after running everything myself I put
 
 **Added in resubmission (Nov 2026).** I am adding an optional `--source NAME` filter to `python app.py ask` and `python app.py retrieve`, so retrieval can be limited to one source file (for example `thread_parking.txt`). It works through the `source` metadata field every chunk already stores. With no flag, behaviour stays exactly as it is now. The corpus has no dates, so this is filtering by source only, not by date.
 
+### Metadata filtering — built and run (added in resubmission)
+
+`store.py::search` takes an optional `source` and passes `where={"source": source}` to `collection.query`. `app.py` has `--source NAME` on `ask` and `retrieve`, threaded through `app.py::ask_pipeline`. If the filename matches no chunks, it prints a message instead of crashing. Real output (`--corpus advice_threads`):
+
+No flag (unchanged behaviour; the bike thread also appears):
+
+```
+$ python app.py --corpus advice_threads retrieve "Is a parking permit worth it?"
+
+Question: Is a parking permit worth it?
+
+#   distance   source                           preview
+----------------------------------------------------------------------------------------------------
+1   0.2657     thread_parking.txt               THREAD: Worth getting a parking permit? If you're co...
+2   0.3490     thread_parking.txt               THREAD: Worth getting a parking permit? Street parki...
+3   0.4496     thread_parking.txt               THREAD: Worth getting a parking permit? West lots se...
+4   0.4529     thread_bike_commute.txt          THREAD: Is a bike worth it for a 20 minute walk comm...
+5   0.4635     thread_bike_commute.txt          THREAD: Is a bike worth it for a 20 minute walk comm...
+
+Gate: best distance 0.266 is under the 0.5 cutoff
+
+Lower is better. 0.3 is a close match, 0.9 is unrelated.
+Milestone 4: run your five questions, then the five in OUT_OF_SCOPE
+that your documents clearly don't cover, and look for the gap
+between the two groups. Your cutoff goes in that gap.
+```
+
+With `--source thread_parking.txt` (only that file's chunks):
+
+```
+$ python app.py --corpus advice_threads retrieve "Is a parking permit worth it?" --source thread_parking.txt
+
+Question: Is a parking permit worth it?
+
+#   distance   source                           preview
+----------------------------------------------------------------------------------------------------
+1   0.2657     thread_parking.txt               THREAD: Worth getting a parking permit? If you're co...
+2   0.3490     thread_parking.txt               THREAD: Worth getting a parking permit? Street parki...
+3   0.4496     thread_parking.txt               THREAD: Worth getting a parking permit? West lots se...
+
+Gate: best distance 0.266 is under the 0.5 cutoff
+
+Lower is better. 0.3 is a close match, 0.9 is unrelated.
+Milestone 4: run your five questions, then the five in OUT_OF_SCOPE
+that your documents clearly don't cover, and look for the gap
+between the two groups. Your cutoff goes in that gap.
+```
+
+With a filename that doesn't exist:
+
+```
+$ python app.py --corpus advice_threads retrieve "Is a parking permit worth it?" --source nothing.txt
+No chunks found for source 'nothing.txt'. Check the filename (run `python app.py chunks` to see sources).
+```
+
 ---
 
 # Unit 2
