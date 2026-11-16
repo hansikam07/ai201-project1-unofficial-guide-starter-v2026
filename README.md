@@ -27,7 +27,7 @@ Hansika's Advice Thread
 
      Milestone 5. -->
 
-I picked the advice threads corpus about student life such as laundry, parking, roomates, office hours, and pass/fail. The model retrieves the relevent reply chunks based on the question. It gets the replies only from the sources and also names the used sources. If the question doesn't have any relevent information in the sources it doesn't answer instead. 
+I picked the advice threads corpus about student life such as laundry, parking, roommates, office hours, and pass/fail. The model retrieves the relevant reply chunks based on the question. It gets the replies only from the sources and also names the used sources. If the question doesn't have any relevant information in the sources it doesn't answer instead. 
 
 ## Chunking Strategy
 
@@ -46,7 +46,7 @@ none — replies don't overlap by design
 
      Milestone 3. -->
 
-Since the original chunker was juts fixed to 800chars, it didn't properly reply. Based on milestone 1 I saw the the replies were already complete and variable so spliting them by char wasn't effective. instead I changed the chunkingt to be based of the --- reply N (votes) --- marking instead and it resulted in proper chunks that were decently sized. 
+Since the original chunker was just fixed to 800 chars, it didn't properly respect the replies. Based on milestone 1 I saw that the replies were already complete and variable so splitting them by char wasn't effective. instead I changed the chunking to be based on the --- reply N (votes) --- marking instead and it resulted in proper chunks that were decently sized. 
 
 ## Sample Chunks
 
@@ -114,7 +114,7 @@ Sources retrieved: thread_commuting.txt, thread_laundry_timing.txt, thread_roomm
 
 **My relevance cutoff:** 0.5
 
-When I ran my questions the best distances were between 0.15-0.28 and the out of scope ones were between 0.82-0.91 since there is alrge gap with no overlap I chose 0.5 since it was between the high end of the best and low end of the out of scope.
+When I ran my questions the best distances were between 0.15-0.28 and the out of scope ones were between 0.82-0.91 since there is a large gap with no overlap I chose 0.5 since it was between the high end of the best and low end of the out of scope.
 
 | Question | In corpus? | Best distance |
 |---|---|---|
@@ -141,10 +141,10 @@ When I ran my questions the best distances were between 0.15-0.28 and the out of
      Milestone 5. -->
 
 **1.**
-A moment I used AI is for the chunker which I then split bny reply markers rather than the char count. Th AI came back with a working regex-based splitter. I ran python app.py --corpus advice_threads index and then did  chunks -n 5 to check for my self and using that I confirmed for myself. 
+A moment I used AI is for the chunker, which I then split by reply markers rather than the char count. The AI came back with a working regex-based splitter. I ran python app.py --corpus advice_threads index and then did  chunks -n 5 to check for myself, and using that I confirmed it for myself. 
 
 **2.**
-I used AI to help set the relevence cut off after running eveyrthing my self I put in the results into AI to do the math on the numbers for the ranges and the overlaps. Then I checked the suggested cut off and decided it was appropriate and implemented it. 
+I used AI to help set the relevance cutoff after running everything myself I put in the results into AI to do the math on the numbers for the ranges and the overlaps. Then I checked the suggested cut off and decided it was appropriate and implemented it. 
 
 <!-- ── Stretch features ─────────────────────────────────────────────────────
      Doing one? Say so here BEFORE you start. A feature this README never
@@ -171,8 +171,6 @@ I used AI to help set the relevence cut off after running eveyrthing my self I p
 
      Milestone 1. -->
 
-## Run Log — Before
-
 | Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
 |---|---|---|---|---|---|
 | 1. Retrieved chunk contains the answer | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
@@ -197,6 +195,95 @@ Yes, you can go to office hours without a specific question; you are actually do
 
 Source: `thread_office_hours_etiquette.txt`
 ``` 
+
+**Added in resubmission (Nov 2026):** real output for criteria 2–5, copied from the same run log or from a command I ran. Criterion 1's output is the office-hours block above.
+
+**Criterion 2 (every answer names a source)** — from `results/run_2026-09-30_0002_before.md`, produced by `run_eval.py::main` calling `generate.py::answer_from_chunks`. The source line is the last line of the answer:
+
+### In the dorms when will the laundry actually be free? — run 1
+
+- Best distance: 0.1689 (passed the gate)
+- Sources retrieved: thread_commuting.txt, thread_laundry_timing.txt, thread_roommate_conflict.txt
+
+```
+Laundry is actually free on Tuesday and Wednesday mornings in every building. 
+
+Source: thread_laundry_timing.txt
+```
+
+**Criterion 3 (gate stops out-of-corpus questions)** — from `results/run_2026-09-30_0002_before.md`, produced by `run_eval.py::check_out_of_scope` (retrieval from `store.py::search`, comparison in `gate.py`):
+
+Produced by `run_eval.py::check_out_of_scope`, cutoff 0.5. Refused 5 of 5.
+
+Retrieval is deterministic and the gate is a comparison against a
+fixed number, so these do not vary between runs — one pass over the
+list is the whole measurement.
+
+| Out-of-scope question | Best distance | Gate |
+|---|---|---|
+| What is the capital of Mongolia? | 0.899 | refused |
+| How do I change the oil in a diesel engine? | 0.905 | refused |
+| Who won the 1994 World Cup? | 0.898 | refused |
+| What is the recommended dosage of ibuprofen for a headache? | 0.819 | refused |
+| How do I write a for loop in Rust? | 0.861 | refused |
+
+**Criterion 4 (chunk completeness)** — output of `python app.py --corpus advice_threads chunks -n 5`, run during this resubmission. The chunks come from `chunker.py::split_documents`. Each is one reply with its thread title on top, and none is cut mid-sentence:
+
+```
+75 chunks total. Showing 5, spread across the corpus.
+
+Paste these into your README under Sample Chunks. The rubric asks
+for the source file and the function that produced them — both are
+printed for you below.
+
+======================================================================
+Chunk 1  |  source: thread_bike_commute.txt#0  |  produced by: chunker.py::split_documents
+======================================================================
+THREAD: Is a bike worth it for a 20 minute walk commute?
+Yeah. Cuts an 18 minute walk to about 6. The thing nobody mentions is storage — covered bike parking exists at three buildings and is full by 9am at all three.
+
+======================================================================
+Chunk 2  |  source: thread_first_gen.txt#1  |  produced by: chunker.py::split_documents
+======================================================================
+THREAD: Anything specific for first-generation students?
+The thing I'd say: the unwritten rules are the hard part, not the coursework. Ask about the unwritten rules explicitly. People are happy to explain them and nobody volunteers them.
+
+======================================================================
+Chunk 3  |  source: thread_laptop_specs.txt#2  |  produced by: chunker.py::split_documents
+======================================================================
+THREAD: How much laptop do I actually need for CS courses?
+I did two years on an 8GB machine and it was fine until the last project, at which point it very much wasn't. 16 is the answer.
+
+======================================================================
+Chunk 4  |  source: thread_parking.txt#1  |  produced by: chunker.py::split_documents
+======================================================================
+THREAD: Worth getting a parking permit?
+Street parking on Verrill is legal and free and unmarked, which is why half the upper years do it.
+
+======================================================================
+Chunk 5  |  source: thread_sleep_schedule.txt#1  |  produced by: chunker.py::split_documents
+======================================================================
+THREAD: Everyone says fix your sleep. Does it actually matter?
+The library being open until 2am is a trap. It's a resource, not a schedule.
+
+For each one, ask: could someone answer a question using only this,
+without reading what came before or after?
+```
+
+**Criterion 5 (distance separation)** — from the same run log. In-corpus best distances (the per-question "Best distance" lines): 0.1689, 0.4473, 0.3312, 0.3010, 0.2282, average 0.295. Out-of-scope best distances (the gate table under criterion 3): 0.899, 0.905, 0.898, 0.819, 0.861, average 0.876. Gap: 0.876 − 0.295 = 0.58, against a target of 0.15.
+
+### Reconciling the distance numbers (added in resubmission)
+
+Two sets of in-corpus distances appear in this README and they are both real:
+
+- The Milestone 4 table in Unit 1 (0.150, 0.244, 0.278, 0.183, 0.282; average 0.227) used the cleaner wordings I typed while setting the cutoff.
+- The Unit 2 run log (0.1689, 0.4473, 0.3312, 0.3010, 0.2282; average 0.295) uses the exact wordings in `questions.py`, typos included.
+
+So the "0.15–0.28" range in Unit 1 describes the Milestone 4 wordings, not the run log. The out-of-scope numbers are the same in both. The roommate question ("What can I do if I'm having trouble with my roomates?") passes the gate at 0.4473, only about 0.05 under the 0.5 cutoff, so it is the closest call in the set. The gap in `criteria.md` criterion 5 is 0.65 for the Milestone 4 wordings and 0.58 for the run log; both clear the 0.15 target (see the Correction block in `criteria.md`).
+
+### The typos in questions.py are on purpose (added in resubmission)
+
+`questions.py` contains typos ("roomates", "withotu", "Whats the last to make..."). I left them in on purpose. Both committed run logs were produced with those exact strings, and fixing them would change the embedding distances and possibly the answers, which would make the logged results no longer match the code. `scorer.py` matches questions to log entries by that exact text, so it relies on this too.
 
 ## Verdicts
 
@@ -243,6 +330,8 @@ It only checks if the retrieved chunk has the answer somewhere in it, not whethe
 
 If I were rewriting the target, I'd change Criterion 1 to something like: "for at least 4 of 5 questions, the generated answer has the expected keyword in all 3 runs, not just one." That would've actually caught the office hours miss (2/3 runs, not 3/3) instead of it slipping through under the retrieval check.
 
+**Added in resubmission (Nov 2026):** The stage for the office-hours and parking drift is **generation**: retrieval returned the same chunk every run, so the model's wording drifted when a chunk held several quotable facts and it picked a different one each time.
+
 ## The Improvement
 
 **What I changed:** Added one line to `GROUNDING_INSTRUCTION` in `generate.py`, telling the model to reuse exact wording from the source instead of paraphrasing.
@@ -260,6 +349,42 @@ If I were rewriting the target, I'd change Criterion 1 to something like: "for a
 | 5. Distance separation (≥0.15 gap) | 0.15 gap | 0.58 | 0.58 | 0.58 | MET |
 
 **Did it help?** Partly. Parking went from 3 different phrasings across runs to word-for-word identical quotes in all 3. Laundry also stabilized. But office hours still missed "normal" in 1 of 3 runs — the source chunk has multiple quotable facts, and the model picked a different one each time. So it fixed wording consistency but not the specific miss I was targeting.
+
+### Re-scored with scorer.py (added in resubmission)
+
+`scorer.py` did not exist when I wrote the verdicts above, so those were read by eye. I have since added it and re-scored the two committed logs without calling the model. Commands and output, copied from the terminal:
+
+```
+$ python scorer.py results/run_2026-09-30_0002_before.md
+Scored results/run_2026-09-30_0002_before.md
+
+expects      hits   question
+Tuesday      3/3    In the dorms when will the laundry actually be free?
+RA           3/3    What can I do if I'm having trouble with my roomates?
+normal       2/3    Can I go to office hours withotu questions?
+west         3/3    Are parking permits worth it?
+week eight   3/3    Whats the last to make a course pass/fail?
+
+Total: 14/15 answers contained their expected phrase
+```
+
+```
+$ python scorer.py results/run_2026-09-30_0109_after.md
+Scored results/run_2026-09-30_0109_after.md
+
+expects      hits   question
+Tuesday      3/3    In the dorms when will the laundry actually be free?
+RA           3/3    What can I do if I'm having trouble with my roomates?
+normal       2/3    Can I go to office hours withotu questions?
+west         3/3    Are parking permits worth it?
+week eight   3/3    Whats the last to make a course pass/fail?
+
+Total: 14/15 answers contained their expected phrase
+```
+
+The prompt change moved the keyword hit rate from 14/15 to 14/15. Office hours still missed "normal" once in each log (run 2 in the before log, run 3 in the after log), so the gain was consistent wording, which no criterion measures.
+
+This also shows why Criterion 1 reads MET 5/5 while the Diagnoses mention office hours missing "normal" in 1 of 3 runs. Criterion 1 as I wrote it measures retrieval (the right source was in the retrieved chunks), and retrieval was perfect. The "normal" miss is a generation-stage keyword miss, which `scorer.py` measures and Criterion 1 does not. The verdicts were not changed.
 
 <!-- Say plainly whether it did, and how you know. If it made things worse,
      say that — a change that backfired, honestly reported, earns full credit
