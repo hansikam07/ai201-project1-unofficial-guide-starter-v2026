@@ -146,6 +146,9 @@ A moment I used AI is for the chunker, which I then split by reply markers rathe
 **2.**
 I used AI to help set the relevance cutoff after running everything myself I put in the results into AI to do the math on the numbers for the ranges and the overlaps. Then I checked the suggested cut off and decided it was appropriate and implemented it. 
 
+**How I Used AI (resubmission)** — added in resubmission (Nov 2026):
+Claude Code hardened the chunker and added the scorer from my spec. I checked the commits, ran more comparisons myself, and fixed the missing items (criterion 4's missing target and the number mismatches).
+
 <!-- ── Stretch features ─────────────────────────────────────────────────────
      Doing one? Say so here BEFORE you start. A feature this README never
      claims earns nothing.
@@ -465,6 +468,8 @@ This also shows why Criterion 1 reads MET 5/5 while the Diagnoses mention office
 
 Criterion 1 technically passes (5/5 retrieval), but the generated wording still doesn't reliably match my `expects` keyword — office hours misses "normal" in 1 of 3 runs. Next I'd try adding stricter prompt rules and maybe multiple acceptable answer phrasings to force more consistency.
 
+
+**Added in resubmission (Nov 2026) — why I stopped:** I ran out of time.
 
 ## What I'd Do Differently
 
