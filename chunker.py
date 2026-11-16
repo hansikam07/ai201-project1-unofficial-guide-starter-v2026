@@ -25,6 +25,7 @@ your pipeline, not giving up.
 from dataclasses import dataclass
 
 import re
+import sys
 
 import config
 from ingest import Document
@@ -82,6 +83,14 @@ def fallback_split(
     return chunks
 
 
+# The format this splitter depends on, named once so a corpus change means
+# changing one line instead of hunting through the function.
+REPLY_MARKER = re.compile(
+    r"---\s*reply\s*\d+\s*\(\d+\s*votes?\)\s*---", re.IGNORECASE
+)
+THREAD_LINE = re.compile(r"^(THREAD:.*)")
+
+
 def split_documents(documents: list[Document]) -> list[Chunk]:
     """
     Split each thread into one chunk per reply.
@@ -94,29 +103,41 @@ def split_documents(documents: list[Document]) -> list[Chunk]:
 
     The thread title is prepended to each reply so a chunk still makes sense
     on its own without needing the surrounding replies for context.
-    """
-    reply_pattern = re.compile(
-        r"---\s*reply\s*\d+\s*\(\d+\s*votes?\)\s*---", re.IGNORECASE
-    )
 
+    The THREAD: line IS the question in this corpus (no thread has any text
+    between that line and its first reply), so it is not a chunk of its own.
+    If a thread ever does carry a question body, it is kept as chunk 0 rather
+    than dropped.
+
+    Defensive behaviour, so a malformed document announces itself instead of
+    quietly vanishing: a document with no reply marker is kept whole as one
+    chunk and a warning is printed, and every document is checked at the end
+    to have produced at least one chunk.
+    """
     chunks: list[Chunk] = []
     for doc in documents:
         text = doc.text.strip()
 
-        title_match = re.match(r"^(THREAD:.*)", text)
+        title_match = THREAD_LINE.match(text)
         title = title_match.group(1).strip() if title_match else ""
 
-        pieces = reply_pattern.split(text)
-        pieces = [p.strip() for p in pieces if p.strip()]
+        if not REPLY_MARKER.search(text):
+            print(
+                f"[chunker] WARNING: {doc.source} has no reply markers; "
+                f"keeping it as one chunk so it is not lost.",
+                file=sys.stderr,
+            )
+            pieces = [text] if text else []
+            title = ""  # the text already starts with its own title line
+        else:
+            parts = [p.strip() for p in REPLY_MARKER.split(text)]
+            head, replies = parts[0], parts[1:]
+            # `head` is whatever sits before the first reply marker.
+            if title and head.startswith(title):
+                head = head[len(title):].strip()
+            pieces = ([head] if head else []) + [r for r in replies if r]
 
-        if title and pieces and pieces[0].startswith("THREAD:"):
-            pieces = pieces[1:]
-
-        index = 0
-        for piece in pieces:
-            piece = piece.strip()
-            if not piece:
-                continue
+        for index, piece in enumerate(pieces):
             combined = f"{title}\n{piece}" if title else piece
             chunks.append(
                 Chunk(
@@ -126,7 +147,15 @@ def split_documents(documents: list[Document]) -> list[Chunk]:
                     produced_by="chunker.py::split_documents",
                 )
             )
-            index += 1
+
+    produced = {c.source for c in chunks}
+    missing = [d.source for d in documents if d.source not in produced]
+    if missing:
+        print(
+            f"[chunker] WARNING: {len(missing)} of {len(documents)} documents "
+            f"produced no chunks: {', '.join(missing)}",
+            file=sys.stderr,
+        )
 
     return chunks
 
