@@ -143,8 +143,12 @@ When I ran my questions the best distances were between 0.15-0.28 and the out of
 **1.**
 A moment I used AI is for the chunker, which I then split by reply markers rather than the char count. The AI came back with a working regex-based splitter. I ran python app.py --corpus advice_threads index and then did  chunks -n 5 to check for myself, and using that I confirmed it for myself. 
 
+*Added in resubmission (Nov 2026):* What I changed: nothing. I checked the splitter's output with `python app.py chunks -n 5` and kept it as it was.
+
 **2.**
 I used AI to help set the relevance cutoff after running everything myself I put in the results into AI to do the math on the numbers for the ranges and the overlaps. Then I checked the suggested cut off and decided it was appropriate and implemented it. 
+
+*Added in resubmission (Nov 2026):* Clarification (resubmission): I believe the AI suggested a cutoff of about 0.7. I did not use that number. I looked at my own two groups of distances (in-corpus best distances up to about 0.28, out-of-scope from about 0.82) and set the cutoff to 0.5 instead of the starter's 0.6, because it fit my corpus better overall while allowing for outliers. So my original line saying I 'decided it was appropriate' means I checked it against my distances and then changed it.
 
 **How I Used AI (resubmission)** — added in resubmission (Nov 2026):
 Claude Code hardened the chunker and added the scorer from my spec. I checked the commits, ran more comparisons myself, and fixed the missing items (criterion 4's missing target and the number mismatches).
