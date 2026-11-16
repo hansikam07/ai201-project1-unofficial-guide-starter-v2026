@@ -478,3 +478,35 @@ I'd rewrite Criterion 1 to check that the expected keyword appears in all 3 runs
 ## Stretch: a second measured improvement — declared before building
 
 **Added in resubmission (Nov 2026).** This follows my existing diagnosis: run-to-run wording drift at the **generation** stage (the model picks a different quotable fact each run; office hours missed "normal" once in each log). I will make ONE change: send temperature 0 with every model call in `generate.py::generate`, set by a new `GENERATION_TEMPERATURE = 0` in `config.py`. Then I will run `python run_eval.py --label after2` (three runs per question, caching off), score the new log with `python scorer.py`, and report in "Run Log — After (2)" whether it helped and what it cost, including if it did not help. The two earlier logs stay untouched.
+
+### Run Log — After (2)
+
+Added in resubmission (Nov 2026). One change: `GENERATION_TEMPERATURE = 0` in `config.py`, sent with every call in `generate.py::generate`. Log: `results/run_2026-11-16_0943_after2.md`, produced by `python run_eval.py --corpus advice_threads --label after2` (3 runs per question, caching off).
+
+| Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
+|---|---|---|---|---|---|
+| 1. Retrieved chunk contains the answer | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 2. Every answer names a source | 5 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 3. Gate stops out-of-corpus questions | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 4. Chunk completeness | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 5. Distance separation (≥0.15 gap) | 0.15 gap | 0.58 | 0.58 | 0.58 | MET |
+
+Retrieval was unchanged: the "Best distance" and "Sources retrieved" lines in this log are identical to the before log (checked with `diff`), and every one of the 15 answers names a `thread_*.txt` source, so criteria 1–5 read the same as before. The keyword scorer is where the change shows:
+
+```
+$ python scorer.py results/run_2026-11-16_0943_after2.md
+Scored results/run_2026-11-16_0943_after2.md
+
+expects      hits   question
+Tuesday      3/3    In the dorms when will the laundry actually be free?
+RA           3/3    What can I do if I'm having trouble with my roomates?
+normal       1/3    Can I go to office hours withotu questions?
+west         3/3    Are parking permits worth it?
+week eight   3/3    Whats the last to make a course pass/fail?
+
+Total: 13/15 answers contained their expected phrase
+```
+
+**Did it help? No.** The keyword hit rate went from 14/15 (before) and 14/15 (after) to 13/15, and office hours got worse, not better: "normal" appeared in only 1 of 3 answers (runs 1 and 2 quote "doing the instructor a favour by turning up" and never say "normal"; run 3 does). Temperature 0 also did not make the runs identical: office hours, parking, laundry and the roommate question each still produced three differently worded answers across the three runs. So the drift is not only sampling randomness. The model still picks a different quotable fact from a chunk that holds several, and the prompt says nothing about which one to prefer.
+
+**What it cost:** nothing in retrieval or sourcing, one config line and a few lines in `generate.py`, and about 18 model calls and about 7,000 tokens for the eval (the run printed "18 model calls this session, 7063 tokens (6327 in, 736 out)"). The honest outcome is that the temperature change did not move the diagnosed problem. The change is kept in the code because it is harmless, not because it worked. The next thing I would try is the one from "What I'd Do Differently": allow more than one acceptable keyword per question, since the chunk legitimately supports more than one correct phrasing.
