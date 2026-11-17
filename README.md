@@ -607,7 +607,7 @@ Known gaps found 2026-11-17:
 
 - (a) When gunicorn kills a worker at its 30 s timeout, the record is written with `status` null, `http_status` null and `generate_ms` 0.0, so the "every path logs a status" rule does not hold for that path.
 - (b) Retries inside the Google SDK are not visible in the log.
-- (c) In that case the client receives Flask's HTML error page, not JSON.
+- (c) In that case the client receives gunicorn's HTML error page, not JSON.
 
 **What It Costs**
 
