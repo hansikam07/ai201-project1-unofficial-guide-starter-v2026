@@ -537,3 +537,94 @@ Shape A: deploy and instrument. I am adding the operational layer around the exi
 - A latency breakdown: where the time goes across the stages of one run, measured.
 - A load observation: the system at about ten times its normal rate, with a report on what changed.
 - Both run paths: deployed on Render and documented as a local run, with a note on what differed. If Render's 512 MB limit stops the hosted run, I will record that and keep Path B only.
+
+**Running It**
+
+Path B: local, with logs. The full run path (environment, numbered steps from a clean checkout, how to check it works, settings) is in the top section of `RUNNING.md`. The start command is `python -m gunicorn serve:app`.
+
+The clean-clone test (a fresh `git clone`, a fresh venv, following `RUNNING.md` literally) worked end to end. The one gap it found was that `python app.py index` prints nothing for about two minutes while it embeds the 75 chunks, which looks like a hang; `RUNNING.md` now says so. On macOS, `python serve.py` on its default port 5000 collides with the AirPlay Receiver, which already listens there (the server fails with "Address already in use" and curl gets an HTTP 403 from AirPlay), so `PORT=5001 python serve.py` is used instead.
+
+Render (the hosted path) has not been attempted. The memory I measured is about 525 MB (an earlier `ps` sample, master plus worker), 806 to 849 MB (the logged `max_rss_mb` in an earlier check), and about 770 MB in the run record below (`ps` on the worker only peaked at 769.5 MB; the logged `max_rss_mb` was 769.6). All of these are above Render's 512 MB free-tier limit, and all were measured on macOS, not on Render.
+
+**Instrumentation**
+
+Every `/ask` request writes one JSON line (`serve.py`, written by `observe.py::log_request`) to `logs/requests.jsonl`, or to `AI201_LOG_PATH` if set. `/health` is not logged. Every record has these 23 fields, in this order, null where they don't apply:
+
+1. `timestamp`: UTC time the request started, ISO-8601 with milliseconds.
+2. `request_id`: a random uuid4 hex string for this request.
+3. `endpoint`: always `/ask`.
+4. `question`: the stripped question, or null if it was empty or the body wasn't JSON.
+5. `status`: `ok`, `refused` (the gate refused), `rejected` (400) or `error` (500).
+6. `http_status`: the HTTP status returned to the client.
+7. `answer`: the answer text returned, including the refusal sentence.
+8. `refused`: whether the relevance gate refused the question.
+9. `sources`: the source files of the retrieved chunks.
+10. `best_distance`: the distance of the closest chunk, rounded to 4 decimals.
+11. `threshold`: the gate cutoff in force (0.5).
+12. `corpus`: the corpus being served.
+13. `model`: the generation model name from `config.MODEL`.
+14. `top_k`: how many chunks retrieval asks for.
+15. `duration_ms`: time for the whole request handler.
+16. `retrieve_ms`: time in `store.search` (embedding the question and querying Chroma).
+17. `gate_ms`: time in `gate.check`.
+18. `generate_ms`: time in the model call; 0.0 when the gate refused, null when the request failed.
+19. `prompt_tokens`: input tokens used by this request.
+20. `output_tokens`: output tokens used by this request.
+21. `cache_hit`: whether the answer came from the local response cache.
+22. `max_rss_mb`: peak resident memory of the worker process so far, in MB.
+23. `error`: `"ExcType: message"` on a failure, or the rejection reason on a 400; otherwise null.
+
+Failure paths that are logged: a rejected request (HTTP 400, an empty question or a body that isn't JSON) and an error (HTTP 500, an exception inside the pipeline, such as an invalid API key). The 400 and 500 responses sent to the client are unchanged.
+
+The token counts and `cache_hit` are differences in process-wide counters in `generate.py`, taken before and after the request, so they are only accurate with one worker handling one request at a time.
+
+The log cannot tell a slow model response apart from `generate()` retrying after a rate limit, because retries are not logged.
+
+The run record (`logs/run_record_cost_check.jsonl`, an instrumentation check, not trial results), all 14 entries:
+
+```
+{"timestamp": "2026-11-17T20:30:24.791Z", "request_id": "26cd3c04bec240ab973fbe3fc556b1fc", "endpoint": "/ask", "question": "In the dorms when will the laundry actually be free?", "status": "ok", "http_status": 200, "answer": "Laundry is actually free in the dorms on \"Tuesday and Wednesday mornings, every building\" (thread_laundry_timing.txt).", "refused": false, "sources": ["thread_commuting.txt", "thread_laundry_timing.txt", "thread_roommate_conflict.txt"], "best_distance": 0.1689, "threshold": 0.5, "corpus": "advice_threads", "model": "gemini-3.5-flash-lite", "top_k": 5, "duration_ms": 3125.9, "retrieve_ms": 1437.98, "gate_ms": 0.01, "generate_ms": 1686.96, "prompt_tokens": 408, "output_tokens": 28, "cache_hit": false, "max_rss_mb": 696.7, "error": null}
+{"timestamp": "2026-11-17T20:30:28.246Z", "request_id": "ca2c018bf0e340ff90392711002c6c6f", "endpoint": "/ask", "question": "What can I do if I'm having trouble with my roomates?", "status": "ok", "http_status": 200, "answer": "If you are having trouble with your roommates, you should talk to your RA early and frame it as \"we need help sorting this out\" rather than \"move me.\" You should also write down specifics before the meeting. (Source: `thread_roommate_conflict.txt`)", "refused": false, "sources": ["thread_laundry_timing.txt", "thread_roommate_conflict.txt", "thread_study_spots.txt"], "best_distance": 0.4473, "threshold": 0.5, "corpus": "advice_threads", "model": "gemini-3.5-flash-lite", "top_k": 5, "duration_ms": 1004.6, "retrieve_ms": 185.44, "gate_ms": 0.01, "generate_ms": 818.87, "prompt_tokens": 431, "output_tokens": 57, "cache_hit": false, "max_rss_mb": 763.9, "error": null}
+{"timestamp": "2026-11-17T20:30:29.568Z", "request_id": "8d1c93cc294f47fa8bde060d5b6f14c3", "endpoint": "/ask", "question": "Can I go to office hours withotu questions?", "status": "ok", "http_status": 200, "answer": "Yes, it is not weird to go to office hours with no specific question; they are usually empty and you are doing the instructor a favour by turning up. \n\nSource: `thread_office_hours_etiquette.txt`", "refused": false, "sources": ["thread_office_hours_etiquette.txt", "thread_professor_email.txt"], "best_distance": 0.3312, "threshold": 0.5, "corpus": "advice_threads", "model": "gemini-3.5-flash-lite", "top_k": 5, "duration_ms": 634.4, "retrieve_ms": 97.69, "gate_ms": 0.0, "generate_ms": 536.35, "prompt_tokens": 420, "output_tokens": 48, "cache_hit": false, "max_rss_mb": 764.8, "error": null}
+{"timestamp": "2026-11-17T20:30:30.518Z", "request_id": "aa752bf6ec7e49f78f10967c66bb664d", "endpoint": "/ask", "question": "Are parking permits worth it?", "status": "ok", "http_status": 200, "answer": "According to `thread_parking.txt`, \"If you're commuting daily, the west permit is worth the August scramble. Otherwise don't bother.\" Additionally, the east lot \"never sells out but it's a 12 minute walk, at which point you might as well have parked on the street.\"", "refused": false, "sources": ["thread_bike_commute.txt", "thread_parking.txt"], "best_distance": 0.301, "threshold": 0.5, "corpus": "advice_threads", "model": "gemini-3.5-flash-lite", "top_k": 5, "duration_ms": 2431.6, "retrieve_ms": 107.62, "gate_ms": 0.01, "generate_ms": 2323.66, "prompt_tokens": 417, "output_tokens": 65, "cache_hit": false, "max_rss_mb": 765.0, "error": null}
+{"timestamp": "2026-11-17T20:30:33.264Z", "request_id": "8d47acce38cf4cb6bb5b549ee698fe38", "endpoint": "/ask", "question": "Whats the last to make a course pass/fail?", "status": "ok", "http_status": 200, "answer": "According to the documents, you can declare a course pass/fail \"up to week eight\" or \"as late as week eight\" (thread_first_year_regret.txt and thread_pass_fail.txt).", "refused": false, "sources": ["thread_first_year_regret.txt", "thread_pass_fail.txt"], "best_distance": 0.2282, "threshold": 0.5, "corpus": "advice_threads", "model": "gemini-3.5-flash-lite", "top_k": 5, "duration_ms": 753.0, "retrieve_ms": 90.1, "gate_ms": 0.0, "generate_ms": 662.37, "prompt_tokens": 433, "output_tokens": 47, "cache_hit": false, "max_rss_mb": 769.2, "error": null}
+{"timestamp": "2026-11-17T20:30:34.333Z", "request_id": "35288c7b39f34cac8370da3c6d7c1290", "endpoint": "/ask", "question": "In the dorms when will the laundry actually be free?", "status": "ok", "http_status": 200, "answer": "Based on the provided documents, laundry is actually free in the dorms \"Tuesday and Wednesday mornings, every building\" (thread_laundry_timing.txt).", "refused": false, "sources": ["thread_commuting.txt", "thread_laundry_timing.txt", "thread_roommate_conflict.txt"], "best_distance": 0.1689, "threshold": 0.5, "corpus": "advice_threads", "model": "gemini-3.5-flash-lite", "top_k": 5, "duration_ms": 673.3, "retrieve_ms": 92.53, "gate_ms": 0.0, "generate_ms": 580.44, "prompt_tokens": 408, "output_tokens": 33, "cache_hit": false, "max_rss_mb": 769.5, "error": null}
+{"timestamp": "2026-11-17T20:30:35.327Z", "request_id": "658d014a0471406d9b63571dbc0f17dc", "endpoint": "/ask", "question": "What can I do if I'm having trouble with my roomates?", "status": "ok", "http_status": 200, "answer": "If you are having trouble with your roommates, you should \"Talk to your RA early, and frame it as 'we need help sorting this out' rather than 'move me'.\" You should also \"Write down specifics before the meeting.\" \n\nSource: thread_roommate_conflict.txt", "refused": false, "sources": ["thread_laundry_timing.txt", "thread_roommate_conflict.txt", "thread_study_spots.txt"], "best_distance": 0.4473, "threshold": 0.5, "corpus": "advice_threads", "model": "gemini-3.5-flash-lite", "top_k": 5, "duration_ms": 23295.1, "retrieve_ms": 98.79, "gate_ms": 0.0, "generate_ms": 23195.7, "prompt_tokens": 431, "output_tokens": 59, "cache_hit": false, "max_rss_mb": 769.6, "error": null}
+{"timestamp": "2026-11-17T20:30:58.942Z", "request_id": "c5f75607a9d346febb4a186c42b882da", "endpoint": "/ask", "question": "Can I go to office hours withotu questions?", "status": "ok", "http_status": 200, "answer": "Yes, it is not weird to go to office hours with no specific question; they are usually empty and you are doing the instructor a favour by turning up. \n\n(Source: thread_office_hours_etiquette.txt)", "refused": false, "sources": ["thread_office_hours_etiquette.txt", "thread_professor_email.txt"], "best_distance": 0.3312, "threshold": 0.5, "corpus": "advice_threads", "model": "gemini-3.5-flash-lite", "top_k": 5, "duration_ms": 1642.8, "retrieve_ms": 138.16, "gate_ms": 0.01, "generate_ms": 1504.32, "prompt_tokens": 420, "output_tokens": 48, "cache_hit": false, "max_rss_mb": 769.6, "error": null}
+{"timestamp": "2026-11-17T20:31:00.905Z", "request_id": "30b60f15ed744e01a28f4f1e3f33379a", "endpoint": "/ask", "question": "Are parking permits worth it?", "status": "ok", "http_status": 200, "answer": "According to thread_parking.txt, if you are commuting daily, the west permit is worth the August scramble, but otherwise you should not bother.", "refused": false, "sources": ["thread_bike_commute.txt", "thread_parking.txt"], "best_distance": 0.301, "threshold": 0.5, "corpus": "advice_threads", "model": "gemini-3.5-flash-lite", "top_k": 5, "duration_ms": 1230.9, "retrieve_ms": 95.7, "gate_ms": 0.0, "generate_ms": 1134.89, "prompt_tokens": 417, "output_tokens": 30, "cache_hit": false, "max_rss_mb": 769.6, "error": null}
+{"timestamp": "2026-11-17T20:31:02.456Z", "request_id": "c7b6f011453c4b5cbb45acf43bb3e512", "endpoint": "/ask", "question": "Whats the last to make a course pass/fail?", "status": "ok", "http_status": 200, "answer": "You can declare it as late as \"week eight\" (from thread_pass_fail.txt and thread_first_year_regret.txt).", "refused": false, "sources": ["thread_first_year_regret.txt", "thread_pass_fail.txt"], "best_distance": 0.2282, "threshold": 0.5, "corpus": "advice_threads", "model": "gemini-3.5-flash-lite", "top_k": 5, "duration_ms": 764.0, "retrieve_ms": 103.81, "gate_ms": 0.0, "generate_ms": 659.88, "prompt_tokens": 433, "output_tokens": 32, "cache_hit": false, "max_rss_mb": 769.6, "error": null}
+{"timestamp": "2026-11-17T20:31:03.548Z", "request_id": "c3070debedc74d639baeb483d5a6d4ad", "endpoint": "/ask", "question": "What is the capital of Mongolia?", "status": "refused", "http_status": 200, "answer": "I don't have enough information about that.", "refused": true, "sources": [], "best_distance": 0.899, "threshold": 0.5, "corpus": "advice_threads", "model": "gemini-3.5-flash-lite", "top_k": 5, "duration_ms": 93.1, "retrieve_ms": 92.9, "gate_ms": 0.0, "generate_ms": 0.0, "prompt_tokens": 0, "output_tokens": 0, "cache_hit": false, "max_rss_mb": 769.6, "error": null}
+{"timestamp": "2026-11-17T20:31:03.957Z", "request_id": "affa6085f99643faab1365a9255e07fd", "endpoint": "/ask", "question": "How do I change the oil in a diesel engine?", "status": "refused", "http_status": 200, "answer": "I don't have enough information about that.", "refused": true, "sources": [], "best_distance": 0.9047, "threshold": 0.5, "corpus": "advice_threads", "model": "gemini-3.5-flash-lite", "top_k": 5, "duration_ms": 90.8, "retrieve_ms": 90.56, "gate_ms": 0.0, "generate_ms": 0.0, "prompt_tokens": 0, "output_tokens": 0, "cache_hit": false, "max_rss_mb": 769.6, "error": null}
+{"timestamp": "2026-11-17T20:31:04.365Z", "request_id": "4f8c99cad815487d9b9fddb7f341953a", "endpoint": "/ask", "question": null, "status": "rejected", "http_status": 400, "answer": null, "refused": null, "sources": null, "best_distance": null, "threshold": null, "corpus": "advice_threads", "model": "gemini-3.5-flash-lite", "top_k": 5, "duration_ms": 0.2, "retrieve_ms": null, "gate_ms": null, "generate_ms": null, "prompt_tokens": 0, "output_tokens": 0, "cache_hit": false, "max_rss_mb": 769.6, "error": "missing question or invalid JSON"}
+{"timestamp": "2026-11-17T20:31:13.291Z", "request_id": "488ebcc8e2244e3380fb0bb313fb76a6", "endpoint": "/ask", "question": "In the dorms when will the laundry actually be free?", "status": "error", "http_status": 500, "answer": null, "refused": null, "sources": null, "best_distance": null, "threshold": null, "corpus": "advice_threads", "model": "gemini-3.5-flash-lite", "top_k": 5, "duration_ms": 2056.5, "retrieve_ms": 1098.28, "gate_ms": 0.02, "generate_ms": null, "prompt_tokens": 0, "output_tokens": 0, "cache_hit": false, "max_rss_mb": 678.8, "error": "ClientError: 400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'API key not valid. Please pass a valid API key.', 'status': 'INVALID_ARGUMENT', 'details': [{'@type': 'type.googleapis.com/google.rpc.ErrorInfo', 'reason': 'API_KEY_INVALID', 'domain': 'googleapis.com', 'metadata': {'service': 'generativelanguage.googleapis.com'}}, {'@type': 'type.googleapis.com/google.rpc.LocalizedMessage', 'locale': 'en-US', 'message': 'API key not valid. Please pass a valid API key.'}]}}"}
+```
+
+Entry 13 (rejected, HTTP 400, the empty question) and entry 14 (error, HTTP 500, the invalid API key, from a second server session) are the failed ones. Entry 7 has a `generate_ms` of 23195.7.
+
+**What It Costs**
+
+Measured from the run record above. The server was started with:
+
+```
+AI201_CORPUS=advice_threads AI201_CACHE=0 AI201_LOG_PATH=logs/run_record_cost_check.jsonl python -m gunicorn serve:app
+```
+
+with the answer cache off and a fresh server process, so the first request was a real cold start. The 10 answered requests (the five questions in `questions.py`, twice) were sent one after another with `drive.py`'s `ask()` function, called from a small script that also sampled memory between requests (that script is not committed), followed by 2 out-of-scope questions and 1 empty one. The numbers come from:
+
+```
+python summarize_log.py logs/run_record_cost_check.jsonl
+python summarize_log.py logs/run_record_cost_check.jsonl --skip-first
+```
+
+| Per answered request | All 10 | 9 warm (first skipped) |
+|---|---|---|
+| Mean prompt tokens | 421.8 | 423.3 |
+| Mean output tokens | 44.7 | 46.6 |
+| Mean seconds (`duration_ms`) | 3.56 | 3.60 |
+| Median seconds (`duration_ms`) | 1.12 | 1.00 |
+| Max seconds | 23.30 | 23.30 |
+| Cache hits | 0 of 10 | 0 of 9 |
+
+The means are pulled up by entry 7 (23.3 s), which is in both columns, so the medians are the more typical figure. The two refused questions made no model call and used 0 tokens (about 0.09 s each).
+
+Cold start, reported separately: the first request (entry 1) had a `retrieve_ms` of 1437.98 and a `duration_ms` of 3125.9. The median `retrieve_ms` of the 9 warm requests was 98.79.
