@@ -8,6 +8,7 @@ The Unofficial Guide is a question-answering service over 23 student advice thre
 - **Python:** 3.13.15. Supported versions are 3.11 to 3.13, not 3.14.
 - **Dependencies:** the pinned `requirements.txt`. The main ones are `chromadb` (0.6.x, vector store and the embedder), `flask` (the web service), `gunicorn` (the server), `google-genai` (the Gemini client), and `python-dotenv`.
 - **Embedding model:** `all-MiniLM-L6-v2` as an ONNX file, run on your own machine. It is 87 MB unpacked plus a 79 MB tarball, about 166 MB for the whole `~/.cache/chroma` folder. It is downloaded the first time it is used, from `chroma-onnx-models.s3.amazonaws.com`, into `~/.cache/chroma`.
+- **Disk:** a fresh `.venv` is about 432 MB and the model cache in `~/.cache/chroma` about 166 MB, so allow roughly 600 MB plus the repo.
 - **Generation calls a hosted Gemini model**, so you need a `GEMINI_API_KEY` (free at https://aistudio.google.com).
 
 ## Steps, from a clean checkout
@@ -46,7 +47,11 @@ The Unofficial Guide is a question-answering service over 23 student advice thre
 
 ## Check that it works
 
-`python -m gunicorn serve:app` listens on `127.0.0.1:8000` unless you set `PORT` (then it listens on `0.0.0.0:$PORT`). `python serve.py` listens on port 5000 unless you set `PORT`. Use the matching port below.
+The two start commands use different ports:
+
+- `python -m gunicorn serve:app` (step 6) listens on `127.0.0.1:8000`, or on `0.0.0.0:$PORT` if `PORT` is set. **The examples below use 8000.**
+- `python serve.py` (Windows) listens on port 5000, or on `$PORT` if it is set. Replace `8000` with `5000` in the examples below.
+  On macOS, port 5000 is already taken by the AirPlay Receiver, so `python serve.py` fails with "Address already in use" and curl gets an HTTP 403 from AirPlay instead. Use `PORT=5001 python serve.py` there and port 5001 in the examples.
 
 ```bash
 curl http://127.0.0.1:8000/health
