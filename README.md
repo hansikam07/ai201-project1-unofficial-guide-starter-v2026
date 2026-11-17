@@ -530,3 +530,10 @@ The Unofficial Guide (Project 1, advice_threads corpus: 23 threads, 75 chunks). 
 **The Shape**
 
 Shape A: deploy and instrument. I am adding the operational layer around the existing pipeline. Out of scope: I am not changing chunking, retrieval, or the 0.5 gate cutoff; I am not exposing the --source filter through the web API; and I am not building a new interface.
+
+**Stretch (declared before building)**
+
+- A second measured improvement, run and logged the same way as the first.
+- A latency breakdown: where the time goes across the stages of one run, measured.
+- A load observation: the system at about ten times its normal rate, with a report on what changed.
+- Both run paths: deployed on Render and documented as a local run, with a note on what differed. If Render's 512 MB limit stops the hosted run, I will record that and keep Path B only.
