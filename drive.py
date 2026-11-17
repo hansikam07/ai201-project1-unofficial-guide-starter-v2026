@@ -26,6 +26,13 @@ Options:
                      (default 50). A start that has to wait for a free slot is
                      counted as a "delayed start" in the summary.
   --timeout S        per-request client timeout in seconds (default 60).
+  --json-out PATH    also write one JSON line per request to PATH: index,
+                     scheduled_start and actual_start (seconds from the start
+                     of the run; scheduled_start is null outside --rate mode),
+                     http_status or error, elapsed_s, question. Nothing is
+                     written unless this is given.
+  --max-requests K   refuse to run if --n is more than K (default 100).
+  --allow-large      allow --n above --max-requests.
 
 Without --out-of-scope or --empty it cycles through the answered questions in
 questions.py. It prints one line per request (HTTP status, or "timeout" or
@@ -231,6 +238,23 @@ def summarise(run: Run, wall: float) -> None:
     print(f"  delayed starts      {run.delayed_starts}")
 
 
+def write_json(run: Run, path: str) -> None:
+    """One JSON line per request, in request order."""
+    with open(path, "w", encoding="utf-8") as f:
+        for r in sorted(run.results, key=lambda r: r["index"]):
+            outcome = r["outcome"]
+            line = {
+                "index": r["index"],
+                "scheduled_start": r["scheduled_start"],
+                "actual_start": r["actual_start"],
+                "http_status": outcome if isinstance(outcome, int) else None,
+                "error": None if isinstance(outcome, int) else outcome,
+                "elapsed_s": r["elapsed_s"],
+                "question": r["question"],
+            }
+            f.write(json.dumps(line) + "\n")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Send questions to serve.py.")
     parser.add_argument("--url", default="http://127.0.0.1:8000")
@@ -248,7 +272,19 @@ def main() -> None:
                         help="in --rate mode, the most requests in flight (default 50)")
     parser.add_argument("--timeout", type=float, default=60.0,
                         help="per-request client timeout in seconds (default 60)")
+    parser.add_argument("--json-out", metavar="PATH", default=None,
+                        help="write one JSON line per request to PATH")
+    parser.add_argument("--max-requests", type=int, default=100,
+                        help="refuse --n above this unless --allow-large (default 100)")
+    parser.add_argument("--allow-large", action="store_true",
+                        help="allow --n above --max-requests")
     args = parser.parse_args()
+
+    if args.n > args.max_requests and not args.allow_large:
+        parser.exit(2, f"drive.py: refusing to send {args.n} requests, which is more "
+                       f"than --max-requests ({args.max_requests}). Nothing was sent.\n"
+                       f"Each answered request is a real model call, and the server "
+                       f"stops after 300 of them. Add --allow-large to send that many.\n")
 
     if args.n < 1:
         parser.error("--n must be at least 1")
@@ -273,6 +309,9 @@ def main() -> None:
     else:
         run_closed(run, args.n, args.concurrency)
     summarise(run, time.perf_counter() - run.t0)
+    if args.json_out:
+        write_json(run, args.json_out)
+        print(f"\nWrote {len(run.results)} lines to {args.json_out}")
 
 
 if __name__ == "__main__":
