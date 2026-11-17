@@ -189,6 +189,7 @@ def ask_pipeline(
     on_gate=None,
     on_prompt=None,
     source=None,
+    timings: dict | None = None,
 ):
     """Retrieve, gate, answer. Returns the outcome and prints nothing.
 
@@ -205,10 +206,16 @@ def ask_pipeline(
     prompt just before it goes out — that's how `--show-prompt` shows you the
     prompt while the model is still thinking rather than after.
     """
+    import time
+
     from store import search
     import gate
     from generate import answer_from_chunks, build_prompt
 
+    # Optional per-stage timings, in milliseconds, written into the dict the
+    # caller passes in. With timings=None nothing is recorded and nothing else
+    # changes.
+    t0 = time.perf_counter()
     results = search(
         question,
         top_k=top_k or config.TOP_K,
@@ -216,7 +223,13 @@ def ask_pipeline(
         variant=variant,
         source=source,
     )
+    t1 = time.perf_counter()
     decision = gate.check(results, threshold=threshold)
+    t2 = time.perf_counter()
+    if timings is not None:
+        timings["retrieve_ms"] = round((t1 - t0) * 1000, 1)
+        timings["gate_ms"] = round((t2 - t1) * 1000, 1)
+        timings["generate_ms"] = 0.0
     if on_gate is not None and not (source and not results):
         on_gate(decision)
 
@@ -243,7 +256,10 @@ def ask_pipeline(
         on_prompt(prompt)
 
     outcome["prompt"] = prompt
+    t3 = time.perf_counter()
     outcome["answer"] = answer_from_chunks(question, results)
+    if timings is not None:
+        timings["generate_ms"] = round((time.perf_counter() - t3) * 1000, 1)
     outcome["sources"] = sorted({r.source for r in results})
     return outcome
 
