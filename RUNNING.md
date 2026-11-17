@@ -39,6 +39,7 @@ The Unofficial Guide is a question-answering service over 23 student advice thre
    ```bash
    python app.py index
    ```
+   On this Mac the build took 86 to 120 seconds. Here onnxruntime lists `CoreMLExecutionProvider` first; with `CPUExecutionProvider` only, it embedded the 75 chunks in 5.9 s, so the long build may be specific to Macs.
 6. Start the service:
    ```bash
    python -m gunicorn serve:app
@@ -79,6 +80,8 @@ Each `/ask` request appends one JSON line to `logs/requests.jsonl` (the folder i
 ## Known limits
 
 The first `/ask` after the server starts is slower, because the embedding model loads then, not at startup.
+
+If `/ask` returns an HTML "Internal Server Error" page after about 30 seconds, the model call took longer than gunicorn's default 30 s worker timeout.
 
 ---
 
