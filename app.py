@@ -227,8 +227,8 @@ def ask_pipeline(
     decision = gate.check(results, threshold=threshold)
     t2 = time.perf_counter()
     if timings is not None:
-        timings["retrieve_ms"] = round((t1 - t0) * 1000, 1)
-        timings["gate_ms"] = round((t2 - t1) * 1000, 1)
+        timings["retrieve_ms"] = round((t1 - t0) * 1000, 2)
+        timings["gate_ms"] = round((t2 - t1) * 1000, 2)
         timings["generate_ms"] = 0.0
     if on_gate is not None and not (source and not results):
         on_gate(decision)
@@ -259,7 +259,7 @@ def ask_pipeline(
     t3 = time.perf_counter()
     outcome["answer"] = answer_from_chunks(question, results)
     if timings is not None:
-        timings["generate_ms"] = round((time.perf_counter() - t3) * 1000, 1)
+        timings["generate_ms"] = round((time.perf_counter() - t3) * 1000, 2)
     outcome["sources"] = sorted({r.source for r in results})
     return outcome
 
