@@ -34,7 +34,7 @@ The Unofficial Guide is a question-answering service over 23 student advice thre
    echo "AI201_CORPUS=advice_threads" >> .env
    ```
    (`config.py` loads `.env`, and `AI201_CORPUS` in it overrides the default.)
-5. Build the index (the first run downloads the embedding model if it is not cached yet):
+5. Build the index (the first run downloads the embedding model if it is not cached yet). This is slow and prints nothing while it embeds the 75 chunks: it took about 2 minutes on the tested machine, so wait for the "Ready." line:
    ```bash
    python app.py index
    ```
