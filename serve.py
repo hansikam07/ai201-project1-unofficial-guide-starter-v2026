@@ -20,18 +20,24 @@ Why this exists: `app.py` runs once and exits, which is fine on your laptop
 and impossible to deploy. A hosted service has to stay up and wait for
 requests. This is the smallest thing that does that.
 
-⚠️ There is deliberately no logging, no timing and no metrics in this file.
-Unit 9 has you build the structured log yourself — the request line, the
-timing field everyone skips, the whole instrument-before-you-deploy exercise.
-Shipping a logger here would hand you the answer to that. Add yours in unit 9;
-this file stays the bare shell until then.
+Every /ask request is logged, whatever its outcome. One JSON object per line
+is appended to logs/requests.jsonl (override the path with AI201_LOG_PATH):
+timestamp, request_id, the question, status ("ok", "refused", "rejected" for a
+400, or "error" for a 500), the HTTP status, the answer, sources and gate
+numbers, per-stage timings (retrieve_ms, gate_ms, generate_ms), the whole
+handler's duration_ms, token counts, whether the answer came from the cache,
+peak memory, and the error text on a failure. /health is not logged. The
+writing lives in observe.py and can never break a request.
 """
 
 import os
+import time
+import uuid
 
 from flask import Flask, jsonify, request
 
 import config
+import observe
 
 app = Flask(__name__)
 
@@ -72,37 +78,110 @@ def ask():
     `"refused": true` so whatever calls this can tell the two apart.
     """
     from app import ask_pipeline
+    import generate
 
-    payload = request.get_json(silent=True) or {}
-    question = (payload.get("question") or "").strip()
+    started = time.perf_counter()
+    timings: dict = {}
+    # NOTE: the token and cache numbers below are deltas of process-wide
+    # counters in generate.py. They are only accurate with one worker handling
+    # one request at a time; with concurrent requests or several workers they
+    # can include other requests' calls.
+    tokens_before = generate.token_counts()
+    cache_hits_before = generate._cache_hits
 
-    if not question:
-        return (
-            jsonify(
-                {
-                    "error": "Send JSON with a question in it, like "
-                    '{"question": "is the housing lottery random?"}'
-                }
-            ),
-            400,
-        )
+    record = {
+        "timestamp": observe.now_iso(),
+        "request_id": uuid.uuid4().hex,
+        "endpoint": "/ask",
+        "question": None,
+        "status": None,
+        "http_status": None,
+        "answer": None,
+        "refused": None,
+        "sources": None,
+        "best_distance": None,
+        "threshold": None,
+        "corpus": config.CORPUS,
+        "model": config.MODEL,
+        "top_k": config.TOP_K,
+        "duration_ms": None,
+        "retrieve_ms": None,
+        "gate_ms": None,
+        "generate_ms": None,
+        "prompt_tokens": None,
+        "output_tokens": None,
+        "cache_hit": None,
+        "max_rss_mb": None,
+        "error": None,
+    }
 
     try:
-        outcome = ask_pipeline(question, corpus=config.CORPUS)
-    except Exception as exc:  # noqa: BLE001 — a reader gets this, not a traceback
-        return jsonify({"error": f"{type(exc).__name__}: {exc}"}), 500
+        payload = request.get_json(silent=True) or {}
+        question = (payload.get("question") or "").strip()
+        record["question"] = question or None
 
-    return jsonify(
-        {
-            "question": question,
-            "answer": outcome["answer"],
-            "refused": outcome["refused"],
-            "sources": outcome["sources"],
-            "best_distance": round(outcome["best_distance"], 4),
-            "threshold": outcome["threshold"],
-            "corpus": config.CORPUS,
-        }
-    )
+        if not question:
+            record["status"] = "rejected"
+            record["http_status"] = 400
+            record["error"] = "missing question or invalid JSON"
+            return (
+                jsonify(
+                    {
+                        "error": "Send JSON with a question in it, like "
+                        '{"question": "is the housing lottery random?"}'
+                    }
+                ),
+                400,
+            )
+
+        try:
+            outcome = ask_pipeline(question, corpus=config.CORPUS, timings=timings)
+        except Exception as exc:  # noqa: BLE001 — a reader gets this, not a traceback
+            record["status"] = "error"
+            record["http_status"] = 500
+            record["error"] = f"{type(exc).__name__}: {exc}"
+            return jsonify({"error": f"{type(exc).__name__}: {exc}"}), 500
+
+        record["status"] = "refused" if outcome["refused"] else "ok"
+        record["http_status"] = 200
+        record["answer"] = outcome["answer"]
+        record["refused"] = outcome["refused"]
+        record["sources"] = outcome["sources"]
+        record["best_distance"] = round(outcome["best_distance"], 4)
+        record["threshold"] = outcome["threshold"]
+
+        return jsonify(
+            {
+                "question": question,
+                "answer": outcome["answer"],
+                "refused": outcome["refused"],
+                "sources": outcome["sources"],
+                "best_distance": round(outcome["best_distance"], 4),
+                "threshold": outcome["threshold"],
+                "corpus": config.CORPUS,
+            }
+        )
+    finally:
+        # Runs on every path, including the 400 and the 500. Wrapped so that
+        # nothing here can change what the client receives.
+        try:
+            tokens_after = generate.token_counts()
+            record["duration_ms"] = round((time.perf_counter() - started) * 1000, 1)
+            record["retrieve_ms"] = timings.get("retrieve_ms")
+            record["gate_ms"] = timings.get("gate_ms")
+            record["generate_ms"] = timings.get("generate_ms")
+            if record["status"] == "error":
+                # The failing stage never finished, so 0.0 would be misleading.
+                record["generate_ms"] = None
+            record["prompt_tokens"] = tokens_after["prompt"] - tokens_before["prompt"]
+            record["output_tokens"] = tokens_after["output"] - tokens_before["output"]
+            record["cache_hit"] = (generate._cache_hits - cache_hits_before) > 0
+            record["max_rss_mb"] = observe.max_rss_mb()
+        except Exception as exc:  # noqa: BLE001
+            import sys
+
+            print(f"[observe] could not build request record: {exc}", file=sys.stderr)
+        observe.log_request(record)
 
 
 def main():
