@@ -546,6 +546,8 @@ The clean-clone test (a fresh `git clone`, a fresh venv, following `RUNNING.md` 
 
 Render (the hosted path) has not been attempted. The memory I measured is about 525 MB (an earlier `ps` sample, master plus worker), 806 to 849 MB (the logged `max_rss_mb` in an earlier check), and about 770 MB in the run record below (`ps` on the worker only peaked at 769.5 MB; the logged `max_rss_mb` was 769.6). All of these are above Render's 512 MB free-tier limit, and all were measured on macOS, not on Render.
 
+CPU-only embedder probe (2026-11-17): a throwaway probe (not committed) forced Chroma's ONNX embedder to `CPUExecutionProvider` and sent the same six requests. Memory peaked at 234.3 MB (`ps`, worker) and 296.8 MB (logged `max_rss_mb`), against about 770 MB with the default provider, and `best_distance` was unchanged to 4 decimals. The code was not changed; the probe patched the embedder from a wrapper outside the repo. On this Mac, onnxruntime lists `CoreMLExecutionProvider` first. On Linux x86, onnxruntime 1.32.0 lists only `AzureExecutionProvider` and `CPUExecutionProvider`, so Render would be expected to use the CPU provider. That is an expectation; it has not been measured on Render.
+
 **Correction (2026-11-17):** the clean-clone test above that worked end to end was run from a local clone. A later clone from the GitHub URL built the index and `/health` reported `index_ready: true`, but every `/ask` returned an HTML 500 after about 31 seconds. The model call took 79 to 84 seconds that afternoon (the same question from the command line took 84 s in the main repo and 79 s in the clone), and gunicorn's default 30 s worker timeout killed the worker.
 
 **Instrumentation**
