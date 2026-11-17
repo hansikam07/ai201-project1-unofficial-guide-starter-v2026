@@ -37,9 +37,11 @@ Options:
 Without --out-of-scope or --empty it cycles through the answered questions in
 questions.py. It prints one line per request (HTTP status, or "timeout" or
 "connection error", and elapsed seconds), then a summary: requests sent,
-counts by outcome, latency min / median / p95 / max, achieved throughput,
-wall-clock total and delayed starts. Latency figures cover only the requests
-that got an HTTP response.
+counts by outcome (and the total of HTTP 2xx), latency min / median / p95 /
+max, send rate (requests sent / wall-clock), successful throughput (HTTP 2xx
+responses / wall-clock, "n/a" if there were none), wall-clock total and
+delayed starts. Latency figures cover only the requests that got an HTTP
+response and are computed from unrounded times.
 
 Hazards:
   * This calls the real model through the server. Every answered request is a
@@ -148,6 +150,7 @@ class Run:
             "actual_start": round(started, 3),
             "outcome": outcome,
             "elapsed_s": round(elapsed, 3),
+            "elapsed_raw": elapsed,
             "question": question,
         }
         with self.lock:
@@ -219,21 +222,28 @@ def p95(values: list[float]) -> float:
 def summarise(run: Run, wall: float) -> None:
     results = run.results
     counts = Counter(r["outcome"] for r in results)
-    answered = [r["elapsed_s"] for r in results if isinstance(r["outcome"], int)]
+    answered = [r["elapsed_raw"] for r in results if isinstance(r["outcome"], int)]
+    successes = sum(1 for r in results
+                    if isinstance(r["outcome"], int) and 200 <= r["outcome"] < 300)
 
     print("\nSummary")
     print(f"  requests sent       {len(results)}")
     for outcome in sorted(counts, key=lambda o: (isinstance(o, str), str(o))):
         label = f"HTTP {outcome}" if isinstance(outcome, int) else outcome
         print(f"  {label:<19} {counts[outcome]}")
+    print(f"  {'HTTP 2xx (total)':<19} {successes}")
     if answered:
         print(f"  latency (s, {len(answered)} with an HTTP response)")
         print(f"    min {min(answered):.2f}  median {statistics.median(answered):.2f}  "
               f"p95 {p95(answered):.2f}  max {max(answered):.2f}")
     else:
         print("  latency             n/a (no HTTP responses)")
-    throughput = len(results) / wall if wall > 0 else 0.0
-    print(f"  throughput          {throughput:.2f} requests/s")
+    send_rate = len(results) / wall if wall > 0 else 0.0
+    print(f"  send rate           {send_rate:.2f} requests/s")
+    if successes and wall > 0:
+        print(f"  successful throughput {successes / wall:.2f} 2xx responses/s")
+    else:
+        print("  successful throughput n/a (no 2xx responses)")
     print(f"  wall-clock total    {wall:.2f}s")
     print(f"  delayed starts      {run.delayed_starts}")
 
