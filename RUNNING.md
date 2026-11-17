@@ -1,3 +1,82 @@
+# Capstone: how to run this (Path B, local with logs)
+
+The Unofficial Guide is a question-answering service over 23 student advice threads (75 chunks, the `advice_threads` corpus). It retrieves the closest replies, refuses questions the threads don't cover, and otherwise asks a hosted Gemini model to answer from them, naming its sources. Every `/ask` request is written to a structured log.
+
+## Environment
+
+- **OS tested:** macOS 26.0.1 (arm64).
+- **Python:** 3.13.15. Supported versions are 3.11 to 3.13, not 3.14.
+- **Dependencies:** the pinned `requirements.txt`. The main ones are `chromadb` (0.6.x, vector store and the embedder), `flask` (the web service), `gunicorn` (the server), `google-genai` (the Gemini client), and `python-dotenv`.
+- **Embedding model:** `all-MiniLM-L6-v2` as an ONNX file, run on your own machine. It is 87 MB unpacked plus a 79 MB tarball, about 166 MB for the whole `~/.cache/chroma` folder. It is downloaded the first time it is used, from `chroma-onnx-models.s3.amazonaws.com`, into `~/.cache/chroma`.
+- **Generation calls a hosted Gemini model**, so you need a `GEMINI_API_KEY` (free at https://aistudio.google.com).
+
+## Steps, from a clean checkout
+
+1. Clone and enter the repo:
+   ```bash
+   git clone https://github.com/hansikam07/ai201-project1-unofficial-guide-starter-v2026.git
+   cd ai201-project1-unofficial-guide-starter-v2026
+   ```
+2. Create and activate a virtual environment (use Python 3.11 to 3.13):
+   ```bash
+   python3 -m venv .venv
+   source .venv/bin/activate
+   ```
+   On Windows PowerShell: `python -m venv .venv` then `.venv\Scripts\Activate.ps1`.
+3. Install the pinned dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+4. Create your `.env` and set the key and the corpus. The default corpus is `campus_life`, not `advice_threads`, so the last line matters:
+   ```bash
+   cp .env.example .env
+   # open .env and paste your key after GEMINI_API_KEY=
+   echo "AI201_CORPUS=advice_threads" >> .env
+   ```
+   (`config.py` loads `.env`, and `AI201_CORPUS` in it overrides the default.)
+5. Build the index (the first run downloads the embedding model if it is not cached yet):
+   ```bash
+   python app.py index
+   ```
+6. Start the service:
+   ```bash
+   python -m gunicorn serve:app
+   ```
+   On Windows gunicorn does not run; use `python serve.py` instead.
+
+## Check that it works
+
+`python -m gunicorn serve:app` listens on `127.0.0.1:8000` unless you set `PORT` (then it listens on `0.0.0.0:$PORT`). `python serve.py` listens on port 5000 unless you set `PORT`. Use the matching port below.
+
+```bash
+curl http://127.0.0.1:8000/health
+```
+Expect `"status": "ok"` and `"index_ready": true`.
+
+```bash
+curl -X POST http://127.0.0.1:8000/ask \
+  -H 'Content-Type: application/json' \
+  -d '{"question": "In the dorms when will the laundry actually be free?"}'
+```
+Expect a JSON object with `question`, `answer`, `refused`, `sources`, `best_distance`, `threshold` and `corpus`. For this question the answer says laundry is free on Tuesday and Wednesday mornings and cites `thread_laundry_timing.txt`; `refused` is `false`, `best_distance` is about 0.17 and `threshold` is 0.5. The exact wording of the answer varies from run to run. A question the threads don't cover (for example "What is the capital of Mongolia?") returns HTTP 200 with `"refused": true`.
+
+## Logs and settings
+
+Each `/ask` request appends one JSON line to `logs/requests.jsonl` (the folder is created on the first request; `/health` is not logged). Settings, all environment variables (put them in `.env` or set them before the start command):
+
+| Variable | What it does |
+|---|---|
+| `AI201_CORPUS` | which corpus to serve; set it to `advice_threads` |
+| `AI201_CACHE` | `0` turns the answer cache off, which you need when measuring |
+| `AI201_LOG_PATH` | where the request log is written (default `logs/requests.jsonl`) |
+| `PORT` | the port to listen on |
+
+## Known limits
+
+The first `/ask` after the server starts is slower, because the embedding model loads then, not at startup.
+
+---
+
 # Running this project
 
 Everything about how the starter works and how to use it.
