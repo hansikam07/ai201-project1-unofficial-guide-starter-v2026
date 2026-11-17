@@ -546,6 +546,8 @@ The clean-clone test (a fresh `git clone`, a fresh venv, following `RUNNING.md` 
 
 Render (the hosted path) has not been attempted. The memory I measured is about 525 MB (an earlier `ps` sample, master plus worker), 806 to 849 MB (the logged `max_rss_mb` in an earlier check), and about 770 MB in the run record below (`ps` on the worker only peaked at 769.5 MB; the logged `max_rss_mb` was 769.6). All of these are above Render's 512 MB free-tier limit, and all were measured on macOS, not on Render.
 
+**Correction (2026-11-17):** the clean-clone test above that worked end to end was run from a local clone. A later clone from the GitHub URL built the index and `/health` reported `index_ready: true`, but every `/ask` returned an HTML 500 after about 31 seconds. The model call took 79 to 84 seconds that afternoon (the same question from the command line took 84 s in the main repo and 79 s in the clone), and gunicorn's default 30 s worker timeout killed the worker.
+
 **Instrumentation**
 
 Every `/ask` request writes one JSON line (`serve.py`, written by `observe.py::log_request`) to `logs/requests.jsonl`, or to `AI201_LOG_PATH` if set. `/health` is not logged. Every record has these 23 fields, in this order, null where they don't apply:
@@ -600,6 +602,12 @@ The run record (`logs/run_record_cost_check.jsonl`, an instrumentation check, no
 ```
 
 Entry 13 (rejected, HTTP 400, the empty question) and entry 14 (error, HTTP 500, the invalid API key, from a second server session) are the failed ones. Entry 7 has a `generate_ms` of 23195.7.
+
+Known gaps found 2026-11-17:
+
+- (a) When gunicorn kills a worker at its 30 s timeout, the record is written with `status` null, `http_status` null and `generate_ms` 0.0, so the "every path logs a status" rule does not hold for that path.
+- (b) Retries inside the Google SDK are not visible in the log.
+- (c) In that case the client receives Flask's HTML error page, not JSON.
 
 **What It Costs**
 
