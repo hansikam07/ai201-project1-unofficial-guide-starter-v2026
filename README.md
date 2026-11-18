@@ -538,6 +538,17 @@ The project followed Shape A. I kept the same retriever, chunking, interface, an
 - A load observation: the system at about ten times its normal rate, with a report on what changed.
 - Both run paths: deployed on Render and documented as a local run, with a note on what differed. If Render's 512 MB limit stops the hosted run, I will record that and keep Path B only.
 
+**Latency breakdown (measured)**
+
+| Stage | Mean (ms) | Median (ms) | Share of duration |
+|---|---:|---:|---:|
+| `retrieve_ms` | 244.78 | 101.30 | 6.9% |
+| `gate_ms` | 0.00 | 0.00 | 0.0% |
+| `generate_ms` | 3310.34 | 976.88 | 93.1% |
+| `duration_ms` (whole request) | 3555.56 | 1117.75 | 100% |
+
+Source: `logs/run_record_cost_check.jsonl`. The numbers come from the 10 "ok" records of one run, including the cold first request. Share of duration is each stage's mean divided by the mean `duration_ms`. [WRITE WHICH STAGE DOMINATES]
+
 **Running It**
 
 I started the application using `python -m gunicorn serve:app`. It used Python 3.13.x and the project's pinned dependencies. The model cache was about 166 MB, and the virtual environment was about 432 MB.
