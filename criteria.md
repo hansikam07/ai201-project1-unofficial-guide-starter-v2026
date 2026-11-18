@@ -179,3 +179,9 @@ The measurement will use max_rss_mb, which is the maximum memory usage across 50
 
 5. Load
 Normal load will be tested at 1 request every 10 seconds for 60 seconds, giving 6 requests, while 10x load will be tested at 1 request per second for 60 seconds, giving 60 requests. All 6 normal requests must succeed, while at least 57 of 60 requests must return HTTP 2xx under 10x load. A 200 refusal counts as success, while client timeouts and HTTP 429 responses count as failures. Gemini rate limits will be identified through the log's error field but will still count as misses. Testing will use drive.py with --rate, --n, --concurrency 10, --max-inflight 10 and --timeout 60. The 95% target allows a small number of failures while still requiring most requests to succeed, making it stricter than a 90% target without requiring perfect results.
+
+Clarifications Made Before Tests
+
+* Criterion 1: The in-scope evaluation set contains 5 questions, which will be repeated 20 times to reach 100 total requests.
+* Criterion 5: The `--concurrency` flag cannot be combined with `--rate`, so the load test will use `--rate` with `--max-inflight 10` to allow requests to overlap.
+* Pacing constraint: The 30-requests-per-minute pacing in `generate.py` will affect Criteria 1, 3, and 5. This is a known constraint of the current implementation. The targets for all three criteria remain unchanged.
