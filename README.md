@@ -525,11 +525,11 @@ Total: 13/15 answers contained their expected phrase
 
 **What This Extends**
 
-The Unofficial Guide (Project 1, advice_threads corpus: 23 threads, 75 chunks). New this unit: a structured request log with per-stage timing and failure records, a measured per-run cost, and a documented run path, both hosted on Render and local.
+This project was an extension of the Unofficial Guide RAG project. I added a 23-field logging system, request timing, steps for running the project, and load-testing tools in `drive.py`. These changes helped me keep track of how the system performed, what errors happened, and how it acted during testing.
 
 **The Shape**
 
-Shape A: deploy and instrument. I am adding the operational layer around the existing pipeline. Out of scope: I am not changing chunking, retrieval, or the 0.5 gate cutoff; I am not exposing the --source filter through the web API; and I am not building a new interface.
+The project followed Shape A. I kept the same retriever, chunking, interface, and model. I did not add another retriever, change the chunking, add new interface features, or switch models. These changes were not part of this project.
 
 **Stretch (declared before building)**
 
@@ -540,11 +540,9 @@ Shape A: deploy and instrument. I am adding the operational layer around the exi
 
 **Running It**
 
-Path B: local, with logs. The full run path (environment, numbered steps from a clean checkout, how to check it works, settings) is in the top section of `RUNNING.md`. The start command is `python -m gunicorn serve:app`.
+I started the application using `python -m gunicorn serve:app`. It used Python 3.13.x and the project's pinned dependencies. The model cache was about 166 MB, and the virtual environment was about 432 MB.
 
-The clean-clone test (a fresh `git clone`, a fresh venv, following `RUNNING.md` literally) worked end to end. The one gap it found was that `python app.py index` prints nothing for about two minutes while it embeds the 75 chunks, which looks like a hang; `RUNNING.md` now says so. On macOS, `python serve.py` on its default port 5000 collides with the AirPlay Receiver, which already listens there (the server fails with "Address already in use" and curl gets an HTTP 403 from AirPlay), so `PORT=5001 python serve.py` is used instead.
-
-Render (the hosted path) was attempted on 2026-11-17 and did not work; see the hosted attempt paragraph below. The memory I measured is about 525 MB (an earlier `ps` sample, master plus worker), 806 to 849 MB (the logged `max_rss_mb` in an earlier check), and about 770 MB in the run record below (`ps` on the worker only peaked at 769.5 MB; the logged `max_rss_mb` was 769.6). All of these are above Render's 512 MB free-tier limit, and all were measured on macOS, not on Render.
+I also tried to deploy the project on Render. The build finished and the service showed as live, but the health check returned HTTP 502 and the worker kept stopping with code 132. I could not confirm what caused this, so the local run path remained the supported way to run the project.
 
 CPU-only embedder probe (2026-11-17): a throwaway probe (not committed) forced Chroma's ONNX embedder to `CPUExecutionProvider` and sent the same six requests. Memory peaked at 234.3 MB (`ps`, worker) and 296.8 MB (logged `max_rss_mb`), against about 770 MB with the default provider, and `best_distance` was unchanged to 4 decimals. The code was not changed; the probe patched the embedder from a wrapper outside the repo. On this Mac, onnxruntime lists `CoreMLExecutionProvider` first. On Linux x86, onnxruntime 1.32.0 lists only `AzureExecutionProvider` and `CPUExecutionProvider`, so Render would be expected to use the CPU provider. That is an expectation; it has not been measured on Render.
 
@@ -554,39 +552,7 @@ CPU-only embedder probe (2026-11-17): a throwaway probe (not committed) forced C
 
 **Instrumentation**
 
-Every `/ask` request writes one JSON line (`serve.py`, written by `observe.py::log_request`) to `logs/requests.jsonl`, or to `AI201_LOG_PATH` if set. `/health` is not logged. Every record has these 23 fields, in this order, null where they don't apply:
-
-1. `timestamp`: UTC time the request started, ISO-8601 with milliseconds.
-2. `request_id`: a random uuid4 hex string for this request.
-3. `endpoint`: always `/ask`.
-4. `question`: the stripped question, or null if it was empty or the body wasn't JSON.
-5. `status`: `ok`, `refused` (the gate refused), `rejected` (400) or `error` (500).
-6. `http_status`: the HTTP status returned to the client.
-7. `answer`: the answer text returned, including the refusal sentence.
-8. `refused`: whether the relevance gate refused the question.
-9. `sources`: the source files of the retrieved chunks.
-10. `best_distance`: the distance of the closest chunk, rounded to 4 decimals.
-11. `threshold`: the gate cutoff in force (0.5).
-12. `corpus`: the corpus being served.
-13. `model`: the generation model name from `config.MODEL`.
-14. `top_k`: how many chunks retrieval asks for.
-15. `duration_ms`: time for the whole request handler.
-16. `retrieve_ms`: time in `store.search` (embedding the question and querying Chroma).
-17. `gate_ms`: time in `gate.check`.
-18. `generate_ms`: time in the model call; 0.0 when the gate refused, null when the request failed.
-19. `prompt_tokens`: input tokens used by this request.
-20. `output_tokens`: output tokens used by this request.
-21. `cache_hit`: whether the answer came from the local response cache.
-22. `max_rss_mb`: peak resident memory of the worker process so far, in MB.
-23. `error`: `"ExcType: message"` on a failure, or the rejection reason on a 400; otherwise null.
-
-Failure paths that are logged: a rejected request (HTTP 400, an empty question or a body that isn't JSON) and an error (HTTP 500, an exception inside the pipeline, such as an invalid API key). The 400 and 500 responses sent to the client are unchanged.
-
-The token counts and `cache_hit` are differences in process-wide counters in `generate.py`, taken before and after the request, so they are only accurate with one worker handling one request at a time.
-
-The log cannot tell a slow model response apart from `generate()` retrying after a rate limit, because retries are not logged.
-
-The run record (`logs/run_record_cost_check.jsonl`, an instrumentation check, not trial results), lines 1 to 10 (the `ok` requests) and line 14 (the error record), copied exactly from the file:
+The system saved each `/ask` request as a JSONL record using `observe.py::log_request`. Each record had 23 fields with request details, status, errors, timing, and memory use. The following records are the part of `logs/run_record_cost_check.jsonl` included in this draft.
 
 ```
 {"timestamp": "2026-11-17T20:30:24.791Z", "request_id": "26cd3c04bec240ab973fbe3fc556b1fc", "endpoint": "/ask", "question": "In the dorms when will the laundry actually be free?", "status": "ok", "http_status": 200, "answer": "Laundry is actually free in the dorms on \"Tuesday and Wednesday mornings, every building\" (thread_laundry_timing.txt).", "refused": false, "sources": ["thread_commuting.txt", "thread_laundry_timing.txt", "thread_roommate_conflict.txt"], "best_distance": 0.1689, "threshold": 0.5, "corpus": "advice_threads", "model": "gemini-3.5-flash-lite", "top_k": 5, "duration_ms": 3125.9, "retrieve_ms": 1437.98, "gate_ms": 0.01, "generate_ms": 1686.96, "prompt_tokens": 408, "output_tokens": 28, "cache_hit": false, "max_rss_mb": 696.7, "error": null}
@@ -602,7 +568,7 @@ The run record (`logs/run_record_cost_check.jsonl`, an instrumentation check, no
 {"timestamp": "2026-11-17T20:31:13.291Z", "request_id": "488ebcc8e2244e3380fb0bb313fb76a6", "endpoint": "/ask", "question": "In the dorms when will the laundry actually be free?", "status": "error", "http_status": 500, "answer": null, "refused": null, "sources": null, "best_distance": null, "threshold": null, "corpus": "advice_threads", "model": "gemini-3.5-flash-lite", "top_k": 5, "duration_ms": 2056.5, "retrieve_ms": 1098.28, "gate_ms": 0.02, "generate_ms": null, "prompt_tokens": 0, "output_tokens": 0, "cache_hit": false, "max_rss_mb": 678.8, "error": "ClientError: 400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'API key not valid. Please pass a valid API key.', 'status': 'INVALID_ARGUMENT', 'details': [{'@type': 'type.googleapis.com/google.rpc.ErrorInfo', 'reason': 'API_KEY_INVALID', 'domain': 'googleapis.com', 'metadata': {'service': 'generativelanguage.googleapis.com'}}, {'@type': 'type.googleapis.com/google.rpc.LocalizedMessage', 'locale': 'en-US', 'message': 'API key not valid. Please pass a valid API key.'}]}}"}
 ```
 
-Line 14 is the error record (HTTP 500, the invalid API key, from a second server session). Lines 11 to 13 (two refused questions and one rejected empty question) are in the file but not shown here. Entry 7 has a `generate_ms` of 23195.7.
+There is also an error record on line 14. It returned HTTP 500, and the error field says there was an API key error.
 
 Known gaps found 2026-11-17:
 
@@ -612,28 +578,170 @@ Known gaps found 2026-11-17:
 
 **What It Costs**
 
-Measured from the run record above. The server was started with:
+Across the 10 answered requests, the average was 421.8 prompt tokens and 44.7 output tokens per request. For the nine warm requests, the averages were 423.3 prompt tokens and 46.6 output tokens. Across all 14 records, there were 4,218 prompt tokens and 447 output tokens. The refused, rejected, and error records used 0 tokens.
 
+The cost per run has **not been calculated yet**. I still need to check the model's price and where that price came from. I also need to compare it with the cost listed in the Milestone 3 README.
+
+The daily cost for 100 runs has also **not been calculated yet**.
+
+**Test Results**
+
+For Criterion 1, I ran `summarize_log.py --skip-first` on `trial_c1_1.jsonl` and `trial_c1_2.jsonl` for the timing summaries. A short script over the same files counted the requests that finished in under 5 seconds.
+
+- **Trial 1:** 76 out of 99 requests finished in under 5 seconds.
+- **Trial 2:** 47 out of 99 requests finished in under 5 seconds.
+
+The raw summary output was:
+
+```text
+logs/trial_c1_1.jsonl  (first record skipped)
+99 records
+
+By status:
+  error      1
+  ok         98
+
+"ok" records: 98
+
+  field                mean     median        max
+  duration_ms       3634.23    3922.50    7883.30
+  retrieve_ms        122.42     103.73     344.50
+  gate_ms              0.00       0.00       0.02
+  generate_ms       3511.37    3813.73    7786.17
+
+  mean prompt_tokens  421.8
+  mean output_tokens  48.4
+
+  cache hits: 0 of 98
 ```
-AI201_CORPUS=advice_threads AI201_CACHE=0 AI201_LOG_PATH=logs/run_record_cost_check.jsonl python -m gunicorn serve:app
+
+```text
+logs/trial_c1_2.jsonl  (first record skipped)
+99 records
+
+By status:
+  ok         99
+
+"ok" records: 99
+
+  field                mean     median        max
+  duration_ms       4656.53    5099.60   12674.20
+  retrieve_ms        119.68     101.60     343.39
+  gate_ms              0.00       0.00       0.08
+  generate_ms       4536.35    4989.58   12577.06
+
+  mean prompt_tokens  421.9
+  mean output_tokens  49.6
+
+  cache hits: 0 of 99
 ```
 
-with the answer cache off and a fresh server process, so the first request was a real cold start. The 10 answered requests (the five questions in `questions.py`, twice) were sent one after another with `drive.py`'s `ask()` function, called from a small script that also sampled memory between requests (that script is not committed), followed by 2 out-of-scope questions and 1 empty one. The numbers come from:
+I also tried Trial 3, but 68 requests failed with Gemini 429 quota errors, and the server returned them as HTTP 500. The run also had 18 `QuotaGuard` errors. Since this trial was blocked by the quota limit, I did not count it in the Criterion 1 result. The result is based only on Trials 1 and 2.
 
+For Criterion 3, I checked all three `trial_c3_*.jsonl` files. Each file had 50 records: 40 successful (`ok`), 5 refused, and 5 error records.
+
+| File | Records | `ok` | Refused | Error | All 23 fields present | Null `status` |
+|---|---:|---:|---:|---:|---|---:|
+| `trial_c3_1.jsonl` | 50 | 40 | 5 | 5 | Yes | 0 |
+| `trial_c3_2.jsonl` | 50 | 40 | 5 | 5 | Yes | 0 |
+| `trial_c3_3.jsonl` | 50 | 40 | 5 | 5 | Yes | 0 |
+
+The two checks printed:
+
+```text
+trial_c3_1: records=50 ok=40 refused=5 error=5 rejected=0 missing_fields=0
+trial_c3_2: records=50 ok=40 refused=5 error=5 rejected=0 missing_fields=0
+trial_c3_3: records=50 ok=40 refused=5 error=5 rejected=0 missing_fields=0
+trial_c3_1: null_status=0 of 50
+trial_c3_2: null_status=0 of 50
+trial_c3_3: null_status=0 of 50
 ```
-python summarize_log.py logs/run_record_cost_check.jsonl
-python summarize_log.py logs/run_record_cost_check.jsonl --skip-first
+
+**Criterion 2 output**
+
+For Criterion 2, I tested what happened when I used the wrong API key. I sent three questions that should normally get an answer in each trial. The output was (`logs/trial_c2_1_output.txt`, `/ask` handler in `serve.py`):
+
+```text
+HTTP 500 time 7.001943s
+HTTP 500 time 0.275486s
+HTTP 500 time 0.213150s
 ```
 
-| Per answered request | All 10 | 9 warm (first skipped) |
-|---|---|---|
-| Mean prompt tokens | 421.8 | 423.3 |
-| Mean output tokens | 44.7 | 46.6 |
-| Mean seconds (`duration_ms`) | 3.56 | 3.60 |
-| Median seconds (`duration_ms`) | 1.12 | 1.00 |
-| Max seconds | 23.30 | 23.30 |
-| Cache hits | 0 of 10 | 0 of 9 |
+Each log record had `status` set to “error”, `http_status` set to 500, and a non-empty `error` field starting with “ClientError: 400 INVALID_ARGUMENT.”
 
-Across the 10 `ok` records the totals are 4,218 prompt tokens and 447 output tokens; dividing by 10 gives the means of 421.8 and 44.7 in the table above. The means are pulled up by entry 7 (23.3 s), which is in both columns, so the medians are the more typical figure. The two refused questions made no model call and used 0 tokens (about 0.09 s each).
+**Run Log and Verdicts**
 
-Cold start, reported separately: the first request (entry 1) had a `retrieve_ms` of 1437.98 and a `duration_ms` of 3125.9. The median `retrieve_ms` of the 9 warm requests was 98.79.
+| Criterion | Target | Result | Verdict |
+|---|---|---|---|
+| 1. Latency | At least 95 of 99 requests under 5 seconds | Trial 1: 76/99; Trial 2: 47/99; Trial 3: quota-blocked and not counted. Neither trial reached 95 of 99. | Missed |
+| 2. Failure Path | All 3 requests return the expected error response | 3/3 passed in all three trials. | Met |
+| 3. Log Completeness | All 23 required fields present and `status` never null | All 150 records passed the field check. No records had a null `status`. | Met |
+| 4. Memory | Maximum memory below 400 MB | 712.5 MB, 783.0 MB, and 834.9 MB across the three trials. | Missed |
+| 5. Load | At least 57 of 60 requests succeed under 10x load | Trial 1 had zero successful responses. Trial 2 had zero successful responses in its first 10 requests. Only two before-fix trials were run. The third before-fix trial and the after-fix trials were not run. | Missed |
+
+**Criterion 4 output**
+
+The peak `max_rss_mb` for each trial, from `logs/trial_c4_N.jsonl` (`observe.max_rss_mb`), was:
+
+- Trial 1: **712.5 MB**
+- Trial 2: **783.0 MB**
+- Trial 3: **834.9 MB**
+
+**Criterion 5 output**
+
+The results came from `logs/trial_c5_before_N_output.txt`:
+
+- Trial 1: 66 requests and **0** successful responses. Every normal request got HTTP 500, caused by a Gemini 429. 35 requests had no matching log record.
+- Trial 2, first 10 requests: **0** successful responses, 9 HTTP 500 responses (Gemini 429), and 1 client timeout.
+
+**Diagnoses**
+
+**Criterion 1 – Latency:** The problem involved the retry loop and budget counter in `generate.py`. Each Gemini 429 retry used one call from the 300-call budget. Repeated quota errors used up the budget and caused the run to hit `QuotaGuard`. Trial 3 had 68 Gemini 429 failures and 18 `QuotaGuard` errors. I could not count the exact number of attempts because the retries were not saved in the logs.
+
+**Criterion 4 – Memory:** `observe.py` reads the peak memory number, and the peak is set on the first `/ask` request when the embedder loads in `store.py`. The `max_rss_mb` numbers stayed flat during each trial, but they were different across the three trials: 712.5 MB, 783.0 MB, and 834.9 MB. I do not know why the numbers were different. All three were above the 400 MB target.
+
+**Criterion 5 – Load:** The problem involved the Gemini call in `generate.py` and the Gemini quota limit. Gemini returned 429 quota errors in both trials, and the server sent those to the client as HTTP 500. Trial 1 had 35 requests with no matching log record. This could mean the clients stopped waiting after reaching the 60-second timeout. Trial 2 had one timeout in its first 10 requests. I did not measure the timeout count for the full trial. The quota errors and timeouts stopped the load test from reaching its target.
+
+**The Improvement**
+
+One change I planned was to increase the Gunicorn timeout to 120 seconds using `--timeout 120`. However, this only changes how long Gunicorn waits before stopping a worker. My results pointed to Gemini quota limits as the main problem, so a longer timeout would not fix that issue.
+
+I did not measure the results of this change because the Gemini quota blocked the before and after tests. Because of this, I could not compare the results or tell if the longer timeout helped.
+
+**What’s Still Broken**
+
+- **Criterion 1:** Trial 3 was blocked by the quota, with 68 Gemini 429 failures and 18 `QuotaGuard` errors. Both other trials missed the target.
+- **Criterion 4:** Memory was above the 400 MB target in all three trials. I do not know why the numbers were different.
+- **Criterion 5:** Gemini quota errors affected both load trials, and some requests also timed out. The third before-fix trial and the after-fix trials were not run.
+- **Deployment:** The Render deployment did not work. The build finished, but the health check returned HTTP 502 and the worker kept stopping with code 132. I could not confirm the cause.
+- **Pacing:** The 30-requests-per-minute limit in `generate.py` affected Criteria 1, 3, and 5.
+- **Logging:** Trial 2 had one `ok` record that I could not match to a specific request because the logs are saved in the order requests finish.
+
+**Next Step**
+
+The next step is to run Criterion 5 again after the Gemini quota resets. I should do this first because the last load tests had quota errors and timeouts, so they did not show how well the system could handle the full load. To pass, at least 57 out of 60 requests need to succeed under 10x load.
+
+**How I Used AI**
+
+What AI helped with:
+
+- Suggested possible performance targets based on the numbers I shared.
+- Checked my drafts against the project self-check questions.
+- Helped run the test scripts and look at the results.
+
+What I did:
+
+- Chose and wrote the criteria.
+- Ran the tests and checked the results.
+- Wrote the report and made the final choices about what to include.
+
+**Commit History and Rubric Evidence**
+
+| Commit | What it records |
+|---|---|
+| `667f933` | First version of the performance criteria |
+| `dfc4aad` | First testing changes |
+| `b70c654` | More testing changes |
+| `4ebc181` | Criterion 4 results |
+| `898a104` | Criterion 1 and Criterion 3 results |
+| `e6be2b2` | Criterion 5 before-fix results |
