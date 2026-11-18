@@ -1,0 +1,53 @@
+=== run normal
+drive.py --url http://127.0.0.1:8000 --rate 0.1 --n 6 --max-inflight 10 --timeout 60
+  1  500    18.67s  start +  0.00s  In the dorms when will the laundry actually be free?
+  2  500    24.52s  start + 10.01s  What can I do if I'm having trouble with my roomates?
+  3  500    30.39s  start + 20.01s  Can I go to office hours withotu questions?
+  4  500    36.56s  start + 30.00s  Are parking permits worth it?
+  5  500    42.72s  start + 40.00s  Whats the last to make a course pass/fail?
+  6  500    48.68s  start + 50.01s  In the dorms when will the laundry actually be free?
+
+Summary
+  requests sent       6
+  HTTP 500            6
+  HTTP 2xx (total)    0
+  latency (s, 6 with an HTTP response)
+    min 18.67  median 33.48  p95 47.19  max 48.68
+  send rate           0.06 requests/s
+  successful throughput n/a (no 2xx responses)
+  wall-clock total    98.69s
+  delayed starts      0
+
+=== run 10x
+drive.py --url http://127.0.0.1:8000 --rate 1 --n 60 --max-inflight 10 --timeout 60
+  1  500    15.84s  start +  0.00s  In the dorms when will the laundry actually be free?
+  2  500    30.58s  start +  1.01s  What can I do if I'm having trouble with my roomates?
+  3  500    45.26s  start +  2.00s  Can I go to office hours withotu questions?
+  4  timeout    60.00s  start +  3.00s  Are parking permits worth it?
+  5  timeout    60.00s  start +  4.01s  Whats the last to make a course pass/fail?
+  6  timeout    60.00s  start +  5.01s  In the dorms when will the laundry actually be free?
+  7  timeout    60.00s  start +  6.00s  What can I do if I'm having trouble with my roomates?
+  8  timeout    60.00s  start +  7.00s  Can I go to office hours withotu questions?
+  9  timeout    60.00s  start +  8.00s  Are parking permits worth it?
+ 10  timeout    60.00s  start +  9.01s  Whats the last to make a course pass/fail?
+ 11  timeout    60.00s  start + 15.84s  In the dorms when will the laundry actually be free?
+ 12  timeout    60.00s  start + 31.59s  What can I do if I'm having trouble with my roomates?
+ 13  timeout    60.00s  start + 47.26s  Can I go to office hours withotu questions?
+ 14  timeout    60.00s  start + 63.00s  Are parking permits worth it?
+ 15  timeout    60.00s  start + 64.01s  Whats the last to make a course pass/fail?
+ 16  timeout    60.00s  start + 65.01s  In the dorms when will the laundry actually be free?
+ 17  timeout    60.00s  start + 66.00s  What can I do if I'm having trouble with my roomates?
+ 18  timeout    60.00s  start + 67.01s  Can I go to office hours withotu questions?
+ 19  timeout    60.01s  start + 68.00s  Are parking permits worth it?
+ 20  timeout    60.00s  start + 69.01s  Whats the last to make a course pass/fail?
+ 21  timeout    60.00s  start + 75.84s  In the dorms when will the laundry actually be free?
+ 22  timeout    60.00s  start + 91.59s  What can I do if I'm having trouble with my roomates?
+ 23  timeout    60.00s  start +107.27s  Can I go to office hours withotu questions?
+ 24  timeout    60.01s  start +123.01s  Are parking permits worth it?
+ 25  timeout    60.00s  start +124.01s  Whats the last to make a course pass/fail?
+ 26  timeout    60.00s  start +125.01s  In the dorms when will the laundry actually be free?
+ 27  timeout    60.00s  start +126.01s  What can I do if I'm having trouble with my roomates?
+ 28  timeout    60.00s  start +127.01s  Can I go to office hours withotu questions?
+ 29  timeout    60.00s  start +128.01s  Are parking permits worth it?
+ 30  timeout    60.00s  start +129.01s  Whats the last to make a course pass/fail?
+ 31  timeout    60.01s  start +135.85s  In the dorms when will the laundry actually be free?

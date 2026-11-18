@@ -1,0 +1,223 @@
+=== run normal
+drive.py --url http://127.0.0.1:8000 --rate 0.1 --n 6 --max-inflight 10 --timeout 60
+  1  500    18.99s  start +  0.00s  In the dorms when will the laundry actually be free?
+  2  500    24.83s  start + 10.01s  What can I do if I'm having trouble with my roomates?
+  3  500    30.48s  start + 20.01s  Can I go to office hours withotu questions?
+  4  500    36.56s  start + 30.01s  Are parking permits worth it?
+  5  500    42.28s  start + 40.01s  Whats the last to make a course pass/fail?
+  6  500    47.89s  start + 50.01s  In the dorms when will the laundry actually be free?
+
+Summary
+  requests sent       6
+  HTTP 500            6
+  HTTP 2xx (total)    0
+  latency (s, 6 with an HTTP response)
+    min 18.99  median 33.52  p95 46.49  max 47.89
+  send rate           0.06 requests/s
+  successful throughput n/a (no 2xx responses)
+  wall-clock total    97.90s
+  delayed starts      0
+
+=== run 10x
+drive.py --url http://127.0.0.1:8000 --rate 1 --n 60 --max-inflight 10 --timeout 60
+  1  500    15.85s  start +  0.00s  In the dorms when will the laundry actually be free?
+  2  500    30.53s  start +  1.01s  What can I do if I'm having trouble with my roomates?
+  3  500    45.24s  start +  2.01s  Can I go to office hours withotu questions?
+  4  500    59.89s  start +  3.01s  Are parking permits worth it?
+  5  timeout    60.00s  start +  4.01s  Whats the last to make a course pass/fail?
+  6  timeout    60.00s  start +  5.00s  In the dorms when will the laundry actually be free?
+  7  timeout    60.00s  start +  6.00s  What can I do if I'm having trouble with my roomates?
+  8  timeout    60.00s  start +  7.00s  Can I go to office hours withotu questions?
+  9  timeout    60.00s  start +  8.01s  Are parking permits worth it?
+ 10  timeout    60.00s  start +  9.00s  Whats the last to make a course pass/fail?
+ 11  timeout    60.00s  start + 15.85s  In the dorms when will the laundry actually be free?
+ 12  timeout    60.00s  start + 31.54s  What can I do if I'm having trouble with my roomates?
+ 13  timeout    60.00s  start + 47.24s  Can I go to office hours withotu questions?
+ 14  timeout    60.00s  start + 62.90s  Are parking permits worth it?
+ 15  timeout    60.00s  start + 64.01s  Whats the last to make a course pass/fail?
+ 16  timeout    60.00s  start + 65.00s  In the dorms when will the laundry actually be free?
+ 17  timeout    60.00s  start + 66.01s  What can I do if I'm having trouble with my roomates?
+ 18  timeout    60.00s  start + 67.00s  Can I go to office hours withotu questions?
+ 19  timeout    60.00s  start + 68.01s  Are parking permits worth it?
+ 20  timeout    60.00s  start + 69.01s  Whats the last to make a course pass/fail?
+ 21  timeout    60.00s  start + 75.85s  In the dorms when will the laundry actually be free?
+ 22  timeout    60.00s  start + 91.54s  What can I do if I'm having trouble with my roomates?
+ 23  timeout    60.00s  start +107.25s  Can I go to office hours withotu questions?
+ 24  timeout    60.00s  start +122.90s  Are parking permits worth it?
+ 25  timeout    60.00s  start +124.01s  Whats the last to make a course pass/fail?
+ 26  timeout    60.00s  start +125.01s  In the dorms when will the laundry actually be free?
+ 27  timeout    60.00s  start +126.01s  What can I do if I'm having trouble with my roomates?
+ 28  timeout    60.00s  start +127.01s  Can I go to office hours withotu questions?
+ 29  timeout    60.00s  start +128.01s  Are parking permits worth it?
+ 30  timeout    60.00s  start +129.01s  Whats the last to make a course pass/fail?
+ 31  timeout    60.00s  start +135.86s  In the dorms when will the laundry actually be free?
+ 32  timeout    60.00s  start +151.54s  What can I do if I'm having trouble with my roomates?
+ 33  timeout    60.00s  start +167.25s  Can I go to office hours withotu questions?
+ 34  timeout    60.00s  start +182.90s  Are parking permits worth it?
+ 35  timeout    60.00s  start +184.02s  Whats the last to make a course pass/fail?
+ 36  timeout    60.00s  start +185.01s  In the dorms when will the laundry actually be free?
+ 37  timeout    60.00s  start +186.01s  What can I do if I'm having trouble with my roomates?
+ 38  timeout    60.00s  start +187.01s  Can I go to office hours withotu questions?
+ 39  timeout    60.00s  start +188.02s  Are parking permits worth it?
+ 40  timeout    60.00s  start +189.01s  Whats the last to make a course pass/fail?
+ 41  timeout    60.00s  start +195.86s  In the dorms when will the laundry actually be free?
+ 42  timeout    60.00s  start +211.55s  What can I do if I'm having trouble with my roomates?
+ 43  timeout    60.00s  start +227.25s  Can I go to office hours withotu questions?
+ 44  timeout    60.00s  start +242.91s  Are parking permits worth it?
+ 45  timeout    60.00s  start +244.02s  Whats the last to make a course pass/fail?
+ 46  timeout    60.00s  start +245.01s  In the dorms when will the laundry actually be free?
+ 47  timeout    60.00s  start +246.01s  What can I do if I'm having trouble with my roomates?
+ 48  timeout    60.00s  start +247.01s  Can I go to office hours withotu questions?
+ 49  timeout    60.00s  start +248.02s  Are parking permits worth it?
+ 50  timeout    60.00s  start +249.02s  Whats the last to make a course pass/fail?
+ 51  timeout    60.00s  start +255.87s  In the dorms when will the laundry actually be free?
+ 52  timeout    60.00s  start +271.55s  What can I do if I'm having trouble with my roomates?
+ 53  timeout    60.00s  start +287.26s  Can I go to office hours withotu questions?
+ 54  timeout    60.00s  start +302.92s  Are parking permits worth it?
+ 55  timeout    60.00s  start +304.02s  Whats the last to make a course pass/fail?
+ 56  timeout    60.00s  start +305.02s  In the dorms when will the laundry actually be free?
+ 57  timeout    60.00s  start +306.02s  What can I do if I'm having trouble with my roomates?
+ 58  timeout    60.00s  start +307.02s  Can I go to office hours withotu questions?
+ 59  timeout    60.00s  start +308.02s  Are parking permits worth it?
+ 60  timeout    60.00s  start +309.02s  Whats the last to make a course pass/fail?
+
+Summary
+  requests sent       60
+  HTTP 500            4
+  timeout             56
+  HTTP 2xx (total)    0
+  latency (s, 4 with an HTTP response)
+    min 15.85  median 37.88  p95 57.69  max 59.89
+  send rate           0.16 requests/s
+  successful throughput n/a (no 2xx responses)
+  wall-clock total    369.02s
+  delayed starts      50
+
+=== server output
+[2026-11-18 00:29:24 -0600] [11491] [INFO] Starting gunicorn 23.0.0
+[2026-11-18 00:29:24 -0600] [11491] [INFO] Listening at: http://127.0.0.1:8000 (11491)
+[2026-11-18 00:29:24 -0600] [11491] [INFO] Using worker: sync
+[2026-11-18 00:29:24 -0600] [11495] [INFO] Booting worker with pid: 11495
+  [rate limit] service pushed back. Retrying in 1s (attempt 1 of 4).
+  [rate limit] service pushed back. Retrying in 2s (attempt 2 of 4).
+  [rate limit] service pushed back. Retrying in 4s (attempt 3 of 4).
+  [rate limit] service pushed back. Retrying in 8s (attempt 4 of 4).
+  [rate limit] service pushed back. Retrying in 1s (attempt 1 of 4).
+  [rate limit] service pushed back. Retrying in 2s (attempt 2 of 4).
+  [rate limit] service pushed back. Retrying in 4s (attempt 3 of 4).
+  [rate limit] service pushed back. Retrying in 8s (attempt 4 of 4).
+  [rate limit] service pushed back. Retrying in 1s (attempt 1 of 4).
+  [rate limit] service pushed back. Retrying in 2s (attempt 2 of 4).
+  [rate limit] service pushed back. Retrying in 4s (attempt 3 of 4).
+  [rate limit] service pushed back. Retrying in 8s (attempt 4 of 4).
+  [rate limit] service pushed back. Retrying in 1s (attempt 1 of 4).
+  [rate limit] service pushed back. Retrying in 2s (attempt 2 of 4).
+  [rate limit] service pushed back. Retrying in 4s (attempt 3 of 4).
+  [rate limit] service pushed back. Retrying in 8s (attempt 4 of 4).
+  [rate limit] service pushed back. Retrying in 1s (attempt 1 of 4).
+  [rate limit] service pushed back. Retrying in 2s (attempt 2 of 4).
+  [rate limit] service pushed back. Retrying in 4s (attempt 3 of 4).
+  [rate limit] service pushed back. Retrying in 8s (attempt 4 of 4).
+  [rate limit] service pushed back. Retrying in 1s (attempt 1 of 4).
+  [rate limit] service pushed back. Retrying in 2s (attempt 2 of 4).
+  [rate limit] service pushed back. Retrying in 4s (attempt 3 of 4).
+  [rate limit] service pushed back. Retrying in 8s (attempt 4 of 4).
+  [rate limit] service pushed back. Retrying in 1s (attempt 1 of 4).
+  [rate limit] service pushed back. Retrying in 2s (attempt 2 of 4).
+  [rate limit] service pushed back. Retrying in 4s (attempt 3 of 4).
+  [rate limit] service pushed back. Retrying in 8s (attempt 4 of 4).
+  [rate limit] service pushed back. Retrying in 1s (attempt 1 of 4).
+  [rate limit] service pushed back. Retrying in 2s (attempt 2 of 4).
+  [rate limit] service pushed back. Retrying in 4s (attempt 3 of 4).
+  [rate limit] service pushed back. Retrying in 8s (attempt 4 of 4).
+  [rate limit] service pushed back. Retrying in 1s (attempt 1 of 4).
+  [rate limit] service pushed back. Retrying in 2s (attempt 2 of 4).
+  [rate limit] service pushed back. Retrying in 4s (attempt 3 of 4).
+  [rate limit] service pushed back. Retrying in 8s (attempt 4 of 4).
+  [rate limit] service pushed back. Retrying in 1s (attempt 1 of 4).
+  [rate limit] service pushed back. Retrying in 2s (attempt 2 of 4).
+  [rate limit] service pushed back. Retrying in 4s (attempt 3 of 4).
+  [rate limit] service pushed back. Retrying in 8s (attempt 4 of 4).
+  [rate limit] service pushed back. Retrying in 1s (attempt 1 of 4).
+  [rate limit] service pushed back. Retrying in 2s (attempt 2 of 4).
+  [rate limit] service pushed back. Retrying in 4s (attempt 3 of 4).
+  [rate limit] service pushed back. Retrying in 8s (attempt 4 of 4).
+  [rate limit] service pushed back. Retrying in 1s (attempt 1 of 4).
+  [rate limit] service pushed back. Retrying in 2s (attempt 2 of 4).
+  [rate limit] service pushed back. Retrying in 4s (attempt 3 of 4).
+  [rate limit] service pushed back. Retrying in 8s (attempt 4 of 4).
+  [rate limit] service pushed back. Retrying in 1s (attempt 1 of 4).
+  [rate limit] service pushed back. Retrying in 2s (attempt 2 of 4).
+  [rate limit] service pushed back. Retrying in 4s (attempt 3 of 4).
+  [rate limit] service pushed back. Retrying in 8s (attempt 4 of 4).
+  [rate limit] service pushed back. Retrying in 1s (attempt 1 of 4).
+  [rate limit] service pushed back. Retrying in 2s (attempt 2 of 4).
+  [rate limit] service pushed back. Retrying in 4s (attempt 3 of 4).
+  [rate limit] service pushed back. Retrying in 8s (attempt 4 of 4).
+  [rate limit] service pushed back. Retrying in 1s (attempt 1 of 4).
+  [rate limit] service pushed back. Retrying in 2s (attempt 2 of 4).
+  [rate limit] service pushed back. Retrying in 4s (attempt 3 of 4).
+  [rate limit] service pushed back. Retrying in 8s (attempt 4 of 4).
+  [rate limit] service pushed back. Retrying in 1s (attempt 1 of 4).
+  [rate limit] service pushed back. Retrying in 2s (attempt 2 of 4).
+  [rate limit] service pushed back. Retrying in 4s (attempt 3 of 4).
+  [rate limit] service pushed back. Retrying in 8s (attempt 4 of 4).
+  [rate limit] service pushed back. Retrying in 1s (attempt 1 of 4).
+  [rate limit] service pushed back. Retrying in 2s (attempt 2 of 4).
+  [rate limit] service pushed back. Retrying in 4s (attempt 3 of 4).
+  [rate limit] service pushed back. Retrying in 8s (attempt 4 of 4).
+  [rate limit] service pushed back. Retrying in 1s (attempt 1 of 4).
+  [rate limit] service pushed back. Retrying in 2s (attempt 2 of 4).
+  [rate limit] service pushed back. Retrying in 4s (attempt 3 of 4).
+  [rate limit] service pushed back. Retrying in 8s (attempt 4 of 4).
+  [rate limit] service pushed back. Retrying in 1s (attempt 1 of 4).
+  [rate limit] service pushed back. Retrying in 2s (attempt 2 of 4).
+  [rate limit] service pushed back. Retrying in 4s (attempt 3 of 4).
+  [rate limit] service pushed back. Retrying in 8s (attempt 4 of 4).
+  [rate limit] service pushed back. Retrying in 1s (attempt 1 of 4).
+  [rate limit] service pushed back. Retrying in 2s (attempt 2 of 4).
+  [rate limit] service pushed back. Retrying in 4s (attempt 3 of 4).
+  [rate limit] service pushed back. Retrying in 8s (attempt 4 of 4).
+  [rate limit] service pushed back. Retrying in 1s (attempt 1 of 4).
+  [rate limit] service pushed back. Retrying in 2s (attempt 2 of 4).
+  [rate limit] service pushed back. Retrying in 4s (attempt 3 of 4).
+  [rate limit] service pushed back. Retrying in 8s (attempt 4 of 4).
+  [rate limit] service pushed back. Retrying in 1s (attempt 1 of 4).
+  [rate limit] service pushed back. Retrying in 2s (attempt 2 of 4).
+  [rate limit] service pushed back. Retrying in 4s (attempt 3 of 4).
+  [rate limit] service pushed back. Retrying in 8s (attempt 4 of 4).
+  [rate limit] service pushed back. Retrying in 1s (attempt 1 of 4).
+  [rate limit] service pushed back. Retrying in 2s (attempt 2 of 4).
+  [rate limit] service pushed back. Retrying in 4s (attempt 3 of 4).
+  [rate limit] service pushed back. Retrying in 8s (attempt 4 of 4).
+  [rate limit] service pushed back. Retrying in 1s (attempt 1 of 4).
+  [rate limit] service pushed back. Retrying in 2s (attempt 2 of 4).
+  [rate limit] service pushed back. Retrying in 4s (attempt 3 of 4).
+  [rate limit] service pushed back. Retrying in 8s (attempt 4 of 4).
+  [rate limit] service pushed back. Retrying in 1s (attempt 1 of 4).
+  [rate limit] service pushed back. Retrying in 2s (attempt 2 of 4).
+  [rate limit] service pushed back. Retrying in 4s (attempt 3 of 4).
+  [rate limit] service pushed back. Retrying in 8s (attempt 4 of 4).
+  [rate limit] service pushed back. Retrying in 1s (attempt 1 of 4).
+  [rate limit] service pushed back. Retrying in 2s (attempt 2 of 4).
+  [rate limit] service pushed back. Retrying in 4s (attempt 3 of 4).
+  [rate limit] service pushed back. Retrying in 8s (attempt 4 of 4).
+  [rate limit] service pushed back. Retrying in 1s (attempt 1 of 4).
+  [rate limit] service pushed back. Retrying in 2s (attempt 2 of 4).
+  [rate limit] service pushed back. Retrying in 4s (attempt 3 of 4).
+  [rate limit] service pushed back. Retrying in 8s (attempt 4 of 4).
+  [rate limit] service pushed back. Retrying in 1s (attempt 1 of 4).
+  [rate limit] service pushed back. Retrying in 2s (attempt 2 of 4).
+  [rate limit] service pushed back. Retrying in 4s (attempt 3 of 4).
+  [rate limit] service pushed back. Retrying in 8s (attempt 4 of 4).
+  [rate limit] service pushed back. Retrying in 1s (attempt 1 of 4).
+  [rate limit] service pushed back. Retrying in 2s (attempt 2 of 4).
+  [rate limit] service pushed back. Retrying in 4s (attempt 3 of 4).
+  [rate limit] service pushed back. Retrying in 8s (attempt 4 of 4).
+  [rate limit] service pushed back. Retrying in 1s (attempt 1 of 4).
+[2026-11-18 00:37:12 -0600] [11491] [INFO] Handling signal: term
+  [rate limit] service pushed back. Retrying in 2s (attempt 2 of 4).
+  [rate limit] service pushed back. Retrying in 4s (attempt 3 of 4).
+  [rate limit] service pushed back. Retrying in 8s (attempt 4 of 4).
+[2026-11-18 00:37:27 -0600] [11495] [INFO] Worker exiting (pid: 11495)
+[2026-11-18 00:37:28 -0600] [11491] [INFO] Shutting down: Master
