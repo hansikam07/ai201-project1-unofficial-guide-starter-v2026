@@ -1,0 +1,106 @@
+=== server A (real key) drive.py --url http://127.0.0.1:8000 --n 40
+  1  200     7.46s  In the dorms when will the laundry actually be free?
+  2  200     4.76s  What can I do if I'm having trouble with my roomates?
+  3  200     5.00s  Can I go to office hours withotu questions?
+  4  200     4.27s  Are parking permits worth it?
+  5  200     6.24s  Whats the last to make a course pass/fail?
+  6  200     6.69s  In the dorms when will the laundry actually be free?
+  7  200     3.79s  What can I do if I'm having trouble with my roomates?
+  8  200     5.45s  Can I go to office hours withotu questions?
+  9  200     7.30s  Are parking permits worth it?
+ 10  200     4.90s  Whats the last to make a course pass/fail?
+ 11  200     4.82s  In the dorms when will the laundry actually be free?
+ 12  200     1.58s  What can I do if I'm having trouble with my roomates?
+ 13  200     4.72s  Can I go to office hours withotu questions?
+ 14  200     6.05s  Are parking permits worth it?
+ 15  200     6.22s  Whats the last to make a course pass/fail?
+ 16  200     5.75s  In the dorms when will the laundry actually be free?
+ 17  200     5.08s  What can I do if I'm having trouble with my roomates?
+ 18  200     7.50s  Can I go to office hours withotu questions?
+ 19  200     4.96s  Are parking permits worth it?
+ 20  200     4.70s  Whats the last to make a course pass/fail?
+ 21  200     7.65s  In the dorms when will the laundry actually be free?
+ 22  200     4.77s  What can I do if I'm having trouble with my roomates?
+ 23  200     4.86s  Can I go to office hours withotu questions?
+ 24  200     5.85s  Are parking permits worth it?
+ 25  200     4.98s  Whats the last to make a course pass/fail?
+ 26  200     4.06s  In the dorms when will the laundry actually be free?
+ 27  200     3.83s  What can I do if I'm having trouble with my roomates?
+ 28  200     3.62s  Can I go to office hours withotu questions?
+ 29  200     5.13s  Are parking permits worth it?
+ 30  200     4.87s  Whats the last to make a course pass/fail?
+ 31  200     4.23s  In the dorms when will the laundry actually be free?
+ 32  200     2.44s  What can I do if I'm having trouble with my roomates?
+ 33  200     2.84s  Can I go to office hours withotu questions?
+ 34  200     2.03s  Are parking permits worth it?
+ 35  200     1.35s  Whats the last to make a course pass/fail?
+ 36  200     0.87s  In the dorms when will the laundry actually be free?
+ 37  200     0.68s  What can I do if I'm having trouble with my roomates?
+ 38  200     0.81s  Can I go to office hours withotu questions?
+ 39  200     1.48s  Are parking permits worth it?
+ 40  200     1.05s  Whats the last to make a course pass/fail?
+
+Summary
+  requests sent       40
+  HTTP 200            40
+  HTTP 2xx (total)    40
+  latency (s, 40 with an HTTP response)
+    min 0.68  median 4.80  p95 7.46  max 7.65
+  send rate           0.23 requests/s
+  successful throughput 0.23 2xx responses/s
+  wall-clock total    174.69s
+  delayed starts      0
+
+=== server A (real key) drive.py --url http://127.0.0.1:8000 --n 5 --out-of-scope
+  1  200     0.50s  What is the capital of Mongolia?
+  2  200     0.15s  How do I change the oil in a diesel engine?
+  3  200     0.14s  Who won the 1994 World Cup?
+  4  200     0.15s  What is the recommended dosage of ibuprofen for a headache?
+  5  200     0.14s  How do I write a for loop in Rust?
+
+Summary
+  requests sent       5
+  HTTP 200            5
+  HTTP 2xx (total)    5
+  latency (s, 5 with an HTTP response)
+    min 0.14  median 0.15  p95 0.43  max 0.50
+  send rate           4.63 requests/s
+  successful throughput 4.63 2xx responses/s
+  wall-clock total    1.08s
+  delayed starts      0
+
+=== server B (wrong key) drive.py --url http://127.0.0.1:8000 --n 5
+  1  500     3.38s  In the dorms when will the laundry actually be free?
+  2  500     0.27s  What can I do if I'm having trouble with my roomates?
+  3  500     0.15s  Can I go to office hours withotu questions?
+  4  500     0.14s  Are parking permits worth it?
+  5  500     0.46s  Whats the last to make a course pass/fail?
+
+Summary
+  requests sent       5
+  HTTP 500            5
+  HTTP 2xx (total)    0
+  latency (s, 5 with an HTTP response)
+    min 0.14  median 0.27  p95 2.80  max 3.38
+  send rate           1.14 requests/s
+  successful throughput n/a (no 2xx responses)
+  wall-clock total    4.41s
+  delayed starts      0
+
+=== server A output
+[2026-11-17 23:44:09 -0600] [9020] [INFO] Starting gunicorn 23.0.0
+[2026-11-17 23:44:09 -0600] [9020] [INFO] Listening at: http://127.0.0.1:8000 (9020)
+[2026-11-17 23:44:09 -0600] [9020] [INFO] Using worker: sync
+[2026-11-17 23:44:09 -0600] [9024] [INFO] Booting worker with pid: 9024
+[2026-11-17 23:47:06 -0600] [9020] [INFO] Handling signal: term
+[2026-11-17 23:47:06 -0600] [9024] [INFO] Worker exiting (pid: 9024)
+[2026-11-17 23:47:07 -0600] [9020] [INFO] Shutting down: Master
+
+=== server B output
+[2026-11-17 23:47:07 -0600] [9183] [INFO] Starting gunicorn 23.0.0
+[2026-11-17 23:47:07 -0600] [9183] [INFO] Listening at: http://127.0.0.1:8000 (9183)
+[2026-11-17 23:47:07 -0600] [9183] [INFO] Using worker: sync
+[2026-11-17 23:47:07 -0600] [9187] [INFO] Booting worker with pid: 9187
+[2026-11-17 23:47:12 -0600] [9183] [INFO] Handling signal: term
+[2026-11-17 23:47:12 -0600] [9187] [INFO] Worker exiting (pid: 9187)
+[2026-11-17 23:47:13 -0600] [9183] [INFO] Shutting down: Master

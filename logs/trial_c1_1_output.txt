@@ -1,0 +1,149 @@
+=== drive.py --url http://127.0.0.1:8000 --n 100
+  1  200     8.61s  In the dorms when will the laundry actually be free?
+  2  200     4.91s  What can I do if I'm having trouble with my roomates?
+  3  200     4.20s  Can I go to office hours withotu questions?
+  4  200     4.57s  Are parking permits worth it?
+  5  200     3.93s  Whats the last to make a course pass/fail?
+  6  200     0.60s  In the dorms when will the laundry actually be free?
+  7  200     0.73s  What can I do if I'm having trouble with my roomates?
+  8  200     5.86s  Can I go to office hours withotu questions?
+  9  200     5.88s  Are parking permits worth it?
+ 10  200     3.20s  Whats the last to make a course pass/fail?
+ 11  200     4.55s  In the dorms when will the laundry actually be free?
+ 12  200     1.34s  What can I do if I'm having trouble with my roomates?
+ 13  200     0.97s  Can I go to office hours withotu questions?
+ 14  200     4.40s  Are parking permits worth it?
+ 15  200     3.92s  Whats the last to make a course pass/fail?
+ 16  200     2.53s  In the dorms when will the laundry actually be free?
+ 17  200     3.69s  What can I do if I'm having trouble with my roomates?
+ 18  200     0.71s  Can I go to office hours withotu questions?
+ 19  200     2.67s  Are parking permits worth it?
+ 20  200     2.14s  Whats the last to make a course pass/fail?
+ 21  200     4.00s  In the dorms when will the laundry actually be free?
+ 22  200     2.25s  What can I do if I'm having trouble with my roomates?
+ 23  200     3.35s  Can I go to office hours withotu questions?
+ 24  200     0.76s  Are parking permits worth it?
+ 25  200     1.94s  Whats the last to make a course pass/fail?
+ 26  200     0.82s  In the dorms when will the laundry actually be free?
+ 27  200     1.54s  What can I do if I'm having trouble with my roomates?
+ 28  200     5.17s  Can I go to office hours withotu questions?
+ 29  200     3.52s  Are parking permits worth it?
+ 30  500    15.56s  Whats the last to make a course pass/fail?
+ 31  200     4.26s  In the dorms when will the laundry actually be free?
+ 32  200     5.28s  What can I do if I'm having trouble with my roomates?
+ 33  200     4.71s  Can I go to office hours withotu questions?
+ 34  200     2.62s  Are parking permits worth it?
+ 35  200     4.58s  Whats the last to make a course pass/fail?
+ 36  200     0.68s  In the dorms when will the laundry actually be free?
+ 37  200     2.66s  What can I do if I'm having trouble with my roomates?
+ 38  200     3.26s  Can I go to office hours withotu questions?
+ 39  200     3.14s  Are parking permits worth it?
+ 40  200     3.56s  Whats the last to make a course pass/fail?
+ 41  200     5.17s  In the dorms when will the laundry actually be free?
+ 42  200     5.48s  What can I do if I'm having trouble with my roomates?
+ 43  200     5.26s  Can I go to office hours withotu questions?
+ 44  200     6.09s  Are parking permits worth it?
+ 45  200     3.40s  Whats the last to make a course pass/fail?
+ 46  200     7.26s  In the dorms when will the laundry actually be free?
+ 47  200     3.45s  What can I do if I'm having trouble with my roomates?
+ 48  200     3.43s  Can I go to office hours withotu questions?
+ 49  200     1.61s  Are parking permits worth it?
+ 50  200     1.64s  Whats the last to make a course pass/fail?
+ 51  200     1.98s  In the dorms when will the laundry actually be free?
+ 52  200     1.84s  What can I do if I'm having trouble with my roomates?
+ 53  200     0.83s  Can I go to office hours withotu questions?
+ 54  200     0.78s  Are parking permits worth it?
+ 55  200     1.33s  Whats the last to make a course pass/fail?
+ 56  200     2.93s  In the dorms when will the laundry actually be free?
+ 57  200     6.92s  What can I do if I'm having trouble with my roomates?
+ 58  200     3.21s  Can I go to office hours withotu questions?
+ 59  200     1.09s  Are parking permits worth it?
+ 60  200     3.19s  Whats the last to make a course pass/fail?
+ 61  200     5.02s  In the dorms when will the laundry actually be free?
+ 62  200     5.81s  What can I do if I'm having trouble with my roomates?
+ 63  200     5.96s  Can I go to office hours withotu questions?
+ 64  200     4.38s  Are parking permits worth it?
+ 65  200     1.04s  Whats the last to make a course pass/fail?
+ 66  200     5.83s  In the dorms when will the laundry actually be free?
+ 67  200     6.10s  What can I do if I'm having trouble with my roomates?
+ 68  200     0.97s  Can I go to office hours withotu questions?
+ 69  200     6.93s  Are parking permits worth it?
+ 70  200     0.92s  Whats the last to make a course pass/fail?
+ 71  200     5.80s  In the dorms when will the laundry actually be free?
+ 72  200     4.30s  What can I do if I'm having trouble with my roomates?
+ 73  200     2.41s  Can I go to office hours withotu questions?
+ 74  200     4.40s  Are parking permits worth it?
+ 75  200     2.44s  Whats the last to make a course pass/fail?
+ 76  200     4.71s  In the dorms when will the laundry actually be free?
+ 77  200     7.89s  What can I do if I'm having trouble with my roomates?
+ 78  200     3.89s  Can I go to office hours withotu questions?
+ 79  200     2.15s  Are parking permits worth it?
+ 80  200     0.72s  Whats the last to make a course pass/fail?
+ 81  200     3.99s  In the dorms when will the laundry actually be free?
+ 82  200     7.48s  What can I do if I'm having trouble with my roomates?
+ 83  200     4.71s  Can I go to office hours withotu questions?
+ 84  200     4.92s  Are parking permits worth it?
+ 85  200     5.62s  Whats the last to make a course pass/fail?
+ 86  200     4.41s  In the dorms when will the laundry actually be free?
+ 87  200     4.55s  What can I do if I'm having trouble with my roomates?
+ 88  200     1.18s  Can I go to office hours withotu questions?
+ 89  200     2.87s  Are parking permits worth it?
+ 90  200     4.43s  Whats the last to make a course pass/fail?
+ 91  200     4.88s  In the dorms when will the laundry actually be free?
+ 92  200     4.10s  What can I do if I'm having trouble with my roomates?
+ 93  200     4.91s  Can I go to office hours withotu questions?
+ 94  200     7.23s  Are parking permits worth it?
+ 95  200     0.76s  Whats the last to make a course pass/fail?
+ 96  200     4.61s  In the dorms when will the laundry actually be free?
+ 97  200     4.10s  What can I do if I'm having trouble with my roomates?
+ 98  200     5.32s  Can I go to office hours withotu questions?
+ 99  200     4.61s  Are parking permits worth it?
+100  200     4.40s  Whats the last to make a course pass/fail?
+
+Summary
+  requests sent       100
+  HTTP 200            99
+  HTTP 500            1
+  HTTP 2xx (total)    99
+  latency (s, 100 with an HTTP response)
+    min 0.60  median 3.96  p95 7.24  max 15.56
+  send rate           0.26 requests/s
+  successful throughput 0.26 2xx responses/s
+  wall-clock total    380.74s
+  delayed starts      0
+
+=== summarize_log.py logs/trial_c1_1.jsonl --skip-first
+logs/trial_c1_1.jsonl  (first record skipped)
+99 records
+
+By status:
+  error      1
+  ok         98
+
+"ok" records: 98
+
+  field                mean     median        max
+  duration_ms       3634.23    3922.50    7883.30
+  retrieve_ms        122.42     103.73     344.50
+  gate_ms              0.00       0.00       0.02
+  generate_ms       3511.37    3813.73    7786.17
+
+  mean prompt_tokens  421.8
+  mean output_tokens  48.4
+
+  cache hits: 0 of 98
+
+=== server output
+[2026-11-17 23:52:43 -0600] [9630] [INFO] Starting gunicorn 23.0.0
+[2026-11-17 23:52:43 -0600] [9630] [INFO] Listening at: http://127.0.0.1:8000 (9630)
+[2026-11-17 23:52:43 -0600] [9630] [INFO] Using worker: sync
+[2026-11-17 23:52:43 -0600] [9634] [INFO] Booting worker with pid: 9634
+  [rate limit] service pushed back. Retrying in 1s (attempt 1 of 4).
+  [rate limit] service pushed back. Retrying in 1s (attempt 1 of 4).
+  [rate limit] service pushed back. Retrying in 2s (attempt 2 of 4).
+  [rate limit] service pushed back. Retrying in 4s (attempt 3 of 4).
+  [rate limit] service pushed back. Retrying in 8s (attempt 4 of 4).
+  [rate limit] service pushed back. Retrying in 1s (attempt 1 of 4).
+[2026-11-17 23:59:04 -0600] [9630] [INFO] Handling signal: term
+[2026-11-17 23:59:04 -0600] [9634] [INFO] Worker exiting (pid: 9634)
+[2026-11-17 23:59:05 -0600] [9630] [INFO] Shutting down: Master
