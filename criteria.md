@@ -185,3 +185,4 @@ Clarifications Made Before Tests
 * Criterion 1: The in-scope evaluation set contains 5 questions, which will be repeated 20 times to reach 100 total requests.
 * Criterion 5: The `--concurrency` flag cannot be combined with `--rate`, so the load test will use `--rate` with `--max-inflight 10` to allow requests to overlap.
 * Pacing constraint: The 30-requests-per-minute pacing in `generate.py` will affect Criteria 1, 3, and 5. This is a known constraint of the current implementation. The targets for all three criteria remain unchanged.
+* Criterion 4: The request mix will include 40 in-scope questions and 10 refusals, for 50 total requests. The cache will be disabled (`AI201_CACHE=0`) to match Criteria 1–3.
