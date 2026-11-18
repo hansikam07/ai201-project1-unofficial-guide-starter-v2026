@@ -162,3 +162,20 @@ This will help in refusing to answer what it doesn't know since you can't check 
      The whole reason the originals stay visible is so someone can see what you
      said before you knew the answer.
      ───────────────────────────────────────────────────────────────────────── -->
+
+## Capstone
+
+1. Latency
+The measurement will use duration_ms per request across the in-scope questions from the 15-question evaluation set, excluding out-of-scope questions since they are refused and do not call Gemini. Caching will be turned off using AI201_CACHE=0. The goal is for at least 95 of the 99 requests remaining after skipping the first cold request to finish under 5 seconds. This is based on the warm median of about 1.1 seconds, and the 23-second request would fail. A 5-second limit allows some variation without accepting unusually slow requests. Testing will use drive.py with --n 100 and --url, followed by summarize_log.py --skip-first. The script cycles through the 15 questions until it reaches the requested 100 requests.
+
+2. Failure path
+The failure path will be tested by setting an incorrect GEMINI_API_KEY before starting the server, with caching turned off to prevent cached answers from bypassing Gemini. All 3 out of 3 requests should return JSON with a 5xx HTTP status and a non-empty error field in the response. The log should also show status: "error" with a non-empty error field. Responses should finish within 30 seconds to avoid Gunicorn returning HTML. Testing will involve starting the server with the wrong key and sending 3 questions using drive.py or curl. All 3 requests must pass because one incorrectly handled error would mean the failure path is not fully reliable.
+
+3. Log completeness
+Testing will start with an empty log file using a fresh AI201_LOG_PATH and produce 50 records across two runs: 40 successful requests, 5 refusals and 5 errors. The successful requests will be sent normally, refusals will be triggered using --out-of-scope, and the 5 errors will be sent in a separate run using the same wrong-key setup from Criterion 2 with caching turned off. Each record must contain all 23 required fields, even if some values are null or empty, but status cannot be null. The /health endpoint is excluded. A script will count records and check for missing fields. This test is expected to pass based on the current logging behavior.
+
+4. Memory
+The measurement will use max_rss_mb, which is the maximum memory usage across 50 requests, using the default ONNX provider selected by the installed environment and one worker. No CPU-only override or temporary wrapper will be used. The goal is to stay under 400 MB. This is based on the earlier default-provider result of about 770 MB, compared to about 297 MB when a temporary wrapper forced CPUExecutionProvider. A 400 MB limit allows some extra memory variation without being too high. Testing will involve starting the server using the normal instructions in RUNNING.md, sending 50 requests and checking the maximum value in the log. The 50 requests will include a mix of successful questions and refusals. Based on the earlier result, this test is expected to miss the target.
+
+5. Load
+Normal load will be tested at 1 request every 10 seconds for 60 seconds, giving 6 requests, while 10x load will be tested at 1 request per second for 60 seconds, giving 60 requests. All 6 normal requests must succeed, while at least 57 of 60 requests must return HTTP 2xx under 10x load. A 200 refusal counts as success, while client timeouts and HTTP 429 responses count as failures. Gemini rate limits will be identified through the log's error field but will still count as misses. Testing will use drive.py with --rate, --n, --concurrency 10, --max-inflight 10 and --timeout 60. The 95% target allows a small number of failures while still requiring most requests to succeed, making it stricter than a 90% target without requiring perfect results.
