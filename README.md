@@ -547,7 +547,7 @@ The project followed Shape A. I kept the same retriever, chunking, interface, an
 | `generate_ms` | 3310.34 | 976.88 | 93.1% |
 | `duration_ms` (whole request) | 3555.56 | 1117.75 | 100% |
 
-Source: `logs/run_record_cost_check.jsonl`. The numbers come from the 10 "ok" records of one run, including the cold first request. Share of duration is each stage's mean divided by the mean `duration_ms`. [WRITE WHICH STAGE DOMINATES]
+Source: `logs/run_record_cost_check.jsonl`. The numbers come from the 10 "ok" records of one run, including the cold first request. Share of duration is each stage's mean divided by the mean `duration_ms`. The Generation stage takes the longest, about 93% share of the mean though it is skewed by a 23s outlier time. Generation does include the pacing time as well.
 
 **Running It**
 
