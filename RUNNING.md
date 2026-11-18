@@ -83,6 +83,19 @@ The first `/ask` after the server starts is slower, because the embedding model 
 
 If `/ask` returns an HTML "Internal Server Error" page after about 30 seconds, the model call took longer than gunicorn's default 30 s worker timeout.
 
+## Hosted attempt (Render free tier)
+
+Path B above (local, with logs) is the supported run path. A hosted run on Render's free tier was tried and did not work:
+
+- Service: Render free web service "Unit 9 Project", `PYTHON_VERSION=3.13.5`, build command `pip install -r requirements.txt && python app.py index`, start command `gunicorn serve:app`, with `WEB_CONCURRENCY=1`, `AI201_CACHE=0` and `AI201_LOG_PATH=/dev/stdout`.
+- The build succeeded in 1m 44s and the service showed Live.
+- `GET /health` returned HTTP 502 with an empty body (after 10.5 s, then 5.7 s).
+- Render's logs repeatedly showed "Worker was sent code 132" followed by "Booting worker". Code 132 is 128 + 4, which is SIGILL (illegal instruction). An out-of-memory kill would show 137.
+- The cause was not diagnosed. One hypothesis is that a native library uses a CPU instruction the free instance lacks. That is a hypothesis, not a finding.
+- I spent about 30 minutes on it, stopped at the time limit, and kept Path B as the supported run path.
+
+No hosted memory, latency or logging results were measured.
+
 ---
 
 # Running this project
