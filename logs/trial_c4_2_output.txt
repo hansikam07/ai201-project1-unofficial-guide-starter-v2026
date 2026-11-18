@@ -1,0 +1,96 @@
+=== drive.py --url http://127.0.0.1:8000 --n 40
+  1  200     3.88s  In the dorms when will the laundry actually be free?
+  2  200     1.02s  What can I do if I'm having trouble with my roomates?
+  3  200     0.83s  Can I go to office hours withotu questions?
+  4  200     3.54s  Are parking permits worth it?
+  5  200     1.30s  Whats the last to make a course pass/fail?
+  6  200     0.97s  In the dorms when will the laundry actually be free?
+  7  200     4.23s  What can I do if I'm having trouble with my roomates?
+  8  200     1.49s  Can I go to office hours withotu questions?
+  9  200     1.12s  Are parking permits worth it?
+ 10  200     1.28s  Whats the last to make a course pass/fail?
+ 11  200     0.77s  In the dorms when will the laundry actually be free?
+ 12  200     1.52s  What can I do if I'm having trouble with my roomates?
+ 13  200     1.79s  Can I go to office hours withotu questions?
+ 14  200     1.54s  Are parking permits worth it?
+ 15  200     1.07s  Whats the last to make a course pass/fail?
+ 16  500    15.82s  In the dorms when will the laundry actually be free?
+ 17  200     4.60s  What can I do if I'm having trouble with my roomates?
+ 18  200     6.39s  Can I go to office hours withotu questions?
+ 19  200     2.35s  Are parking permits worth it?
+ 20  200     3.83s  Whats the last to make a course pass/fail?
+ 21  200     7.18s  In the dorms when will the laundry actually be free?
+ 22  200     3.44s  What can I do if I'm having trouble with my roomates?
+ 23  200     0.81s  Can I go to office hours withotu questions?
+ 24  200     0.73s  Are parking permits worth it?
+ 25  200     2.58s  Whats the last to make a course pass/fail?
+ 26  200     7.91s  In the dorms when will the laundry actually be free?
+ 27  200     0.93s  What can I do if I'm having trouble with my roomates?
+ 28  200     1.36s  Can I go to office hours withotu questions?
+ 29  200     0.82s  Are parking permits worth it?
+ 30  200     0.69s  Whats the last to make a course pass/fail?
+ 31  200     1.48s  In the dorms when will the laundry actually be free?
+ 32  200     1.04s  What can I do if I'm having trouble with my roomates?
+ 33  200     3.21s  Can I go to office hours withotu questions?
+ 34  200     0.92s  Are parking permits worth it?
+ 35  200    13.48s  Whats the last to make a course pass/fail?
+ 36  200     2.60s  In the dorms when will the laundry actually be free?
+ 37  200     1.13s  What can I do if I'm having trouble with my roomates?
+ 38  200     1.86s  Can I go to office hours withotu questions?
+ 39  200     2.34s  Are parking permits worth it?
+ 40  200     0.95s  Whats the last to make a course pass/fail?
+
+Summary
+  requests sent       40
+  HTTP 200            39
+  HTTP 500            1
+  HTTP 2xx (total)    39
+  latency (s, 40 with an HTTP response)
+    min 0.69  median 1.51  p95 8.19  max 15.82
+  send rate           0.35 requests/s
+  successful throughput 0.34 2xx responses/s
+  wall-clock total    114.81s
+  delayed starts      0
+
+=== drive.py --url http://127.0.0.1:8000 --n 10 --out-of-scope
+  1  200     0.11s  What is the capital of Mongolia?
+  2  200     0.21s  How do I change the oil in a diesel engine?
+  3  200     0.17s  Who won the 1994 World Cup?
+  4  200     0.12s  What is the recommended dosage of ibuprofen for a headache?
+  5  200     0.14s  How do I write a for loop in Rust?
+  6  200     0.16s  What is the capital of Mongolia?
+  7  200     0.15s  How do I change the oil in a diesel engine?
+  8  200     0.22s  Who won the 1994 World Cup?
+  9  200     0.17s  What is the recommended dosage of ibuprofen for a headache?
+ 10  200     0.15s  How do I write a for loop in Rust?
+
+Summary
+  requests sent       10
+  HTTP 200            10
+  HTTP 2xx (total)    10
+  latency (s, 10 with an HTTP response)
+    min 0.11  median 0.16  p95 0.22  max 0.22
+  send rate           6.24 requests/s
+  successful throughput 6.24 2xx responses/s
+  wall-clock total    1.60s
+  delayed starts      0
+
+=== server output (gunicorn stdout/stderr)
+[2026-11-17 23:29:43 -0600] [8237] [INFO] Starting gunicorn 23.0.0
+[2026-11-17 23:29:43 -0600] [8237] [INFO] Listening at: http://127.0.0.1:8000 (8237)
+[2026-11-17 23:29:43 -0600] [8237] [INFO] Using worker: sync
+[2026-11-17 23:29:43 -0600] [8241] [INFO] Booting worker with pid: 8241
+  [rate limit] service pushed back. Retrying in 1s (attempt 1 of 4).
+  [rate limit] service pushed back. Retrying in 2s (attempt 2 of 4).
+  [rate limit] service pushed back. Retrying in 4s (attempt 3 of 4).
+  [rate limit] service pushed back. Retrying in 8s (attempt 4 of 4).
+  [rate limit] service pushed back. Retrying in 1s (attempt 1 of 4).
+  [rate limit] service pushed back. Retrying in 2s (attempt 2 of 4).
+  [rate limit] service pushed back. Retrying in 1s (attempt 1 of 4).
+  [rate limit] service pushed back. Retrying in 1s (attempt 1 of 4).
+  [rate limit] service pushed back. Retrying in 2s (attempt 2 of 4).
+  [rate limit] service pushed back. Retrying in 4s (attempt 3 of 4).
+  [rate limit] service pushed back. Retrying in 1s (attempt 1 of 4).
+[2026-11-17 23:31:41 -0600] [8237] [INFO] Handling signal: term
+[2026-11-17 23:31:41 -0600] [8241] [INFO] Worker exiting (pid: 8241)
+[2026-11-17 23:31:42 -0600] [8237] [INFO] Shutting down: Master
